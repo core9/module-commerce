@@ -18,5 +18,13 @@ public class Cart {
 	public void addItem(LineItem item) {
 		items.put(item.getId(), item);
 	}
+	
+	public int getTotal() {
+		int total = 0;
+		for(LineItem item : items.values()) {
+			total += (item.getPrice() * item.getQuantity());
+		}
+		return total;
+	}
 
 }

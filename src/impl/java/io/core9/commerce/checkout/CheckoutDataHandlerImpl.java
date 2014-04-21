@@ -161,7 +161,7 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 		OrderImpl order = DataUtils.toObject(form, OrderImpl.class);
 		Cart cart = (Cart) session.getAttribute("cart");
 		order.setCart(cart);
-		if(id == null) {
+		if(id == null || id != order.getId()) {
 			orderRepository.create(request.getVirtualHost(), order);
 		} else {
 			order.setId(id);

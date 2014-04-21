@@ -49,11 +49,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
 				}
 				Map<String,Object> result = new HashMap<String,Object>();
 				result.put("items", MAPPER.convertValue(cart.getItems().values(), new TypeReference<List<Object>>(){}));
-				int total = 0;
-				for(LineItem item : cart.getItems().values()) {
-					total += (item.getPrice() * item.getQuantity());
-				}
-				result.put("total", total);
+				result.put("total", cart.getTotal());
 				return result;
 			}
 
