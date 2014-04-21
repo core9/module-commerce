@@ -4,8 +4,10 @@ import io.core9.commerce.payment.PaymentMethod;
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;
 import io.core9.plugin.database.repository.CrudRepository;
+import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.database.repository.NoCollectionNamePresentException;
 import io.core9.plugin.database.repository.RepositoryFactory;
+import io.core9.plugin.server.VirtualHost;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
@@ -33,12 +35,14 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 	private AuthenticationPlugin auth;
 	
 	private CrudRepository<PaymentMethod> methodsRepository;
+	private CrudRepository<Order> orderRepository;
 	
 	private static final ObjectMapper MAPPER = new ObjectMapper(); 
 
 	@PluginLoaded
 	public void onRepositoryFactoryAvailable(RepositoryFactory factory) throws NoCollectionNamePresentException {
 		methodsRepository = factory.getRepository(PaymentMethod.class);
+		orderRepository = factory.getRepository(Order.class);
 	}
 
 	@Override
@@ -53,7 +57,6 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 
 	@Override
 	public DataHandler<CheckoutDataHandlerConfig> createDataHandler(final DataHandlerFactoryConfig options) {
-		final String next = ((CheckoutDataHandlerConfig) options).getNextStep();
 		return new DataHandler<CheckoutDataHandlerConfig>() {
 
 			@Override
@@ -62,35 +65,19 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 				Session session = auth.getUser(req).getSession();
 				switch(req.getMethod()) {
 				case POST:
-					session.setAttribute("order", createOrder(req));
-					if(!next.equals(req.getPath())) {
-						req.getResponse().sendRedirect(301, next);
-					}
+					handlePostedForm(session, req, ((CheckoutDataHandlerConfig) options).getNextStep());
 					break;
 				default:
-					Map<String, PaymentMethod> paymentMethods = new HashMap<String, PaymentMethod>();
-					for(PaymentMethod method : methodsRepository.getAll(req.getVirtualHost())) {
-						paymentMethods.put(method.getName(), method);
-					}
+					// Retrieve payment method information
+					Map<String, PaymentMethod> paymentMethods = retrievePaymentMethodsForVhost(req.getVirtualHost());
 					result.put("paymentmethods", MAPPER.convertValue(paymentMethods.values(), new TypeReference<List<Object>>() {}));
 
-					@SuppressWarnings("unchecked")
-					Map<String,Object> order = (Map<String, Object>) session.getAttribute("order");
-					result.put("order", order);
-					if(order != null && order.get("paymentmethod") != null) {
-						PaymentMethod method = paymentMethods.get(order.get("paymentmethod"));
-						if(method == null) {
-							return result;
-						}
-						result.put("payment", MAPPER.convertValue(method, new TypeReference<Map<String,Object>>() {}));
-						Widget widget = widgets.getRegistry(req.getVirtualHost()).get(method.getWidget());
-						DataHandler<?> handler = widget.getDataHandler();
-						if(handler != null) {
-							result.put("paymentData", widget.getDataHandler().handle(req));
-						} else {
-							result.put("paymentData", "");
-						}
-					}
+					// Retrieve order
+					Order order = (Order) session.getAttribute("order");
+					result.put("order", DataUtils.toMap(order));
+					
+					// Retrieve payment request options
+					handlePaymentRequest(paymentMethods, req, order, result);
 					break;
 				}
 				return result;
@@ -103,14 +90,89 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 		};
 	}
 	
-	private Map<String,Object> createOrder(Request request) {
+	/**
+	 * Handle the payment request
+	 * Put the paymentData on the response object
+	 * @param paymentMethods
+	 * @param req
+	 * @param order
+	 * @param result
+	 */
+	private void handlePaymentRequest(Map<String, PaymentMethod> paymentMethods, Request req, Order order, Map<String,Object> result) {
+		if(order != null && order.getPaymentmethod() != null) {
+			PaymentMethod method = paymentMethods.get(order.getPaymentmethod());
+			if(method == null) {
+				return;
+			}
+			result.put("payment", MAPPER.convertValue(method, new TypeReference<Map<String,Object>>() {}));
+			Widget widget = widgets.getRegistry(req.getVirtualHost()).get(method.getWidget());
+			DataHandler<?> handler = widget.getDataHandler();
+			if(handler != null) {
+				result.put("paymentData", widget.getDataHandler().handle(req));
+			} else {
+				result.put("paymentData", "");
+			}
+		}
+	}
+
+	/**
+	 * Retrieve all available payment methods
+	 * @param vhost
+	 * @return
+	 */
+	private Map<String, PaymentMethod> retrievePaymentMethodsForVhost(VirtualHost vhost) {
+		Map<String, PaymentMethod> paymentMethods = new HashMap<String, PaymentMethod>();
+		for(PaymentMethod method : methodsRepository.getAll(vhost)) {
+			paymentMethods.put(method.getName(), method);
+		}
+		return paymentMethods;
+	}
+
+	/**
+	 * Create an order and put it in the user session
+	 * Redirect to the next step
+	 * @param session
+	 * @param req
+	 * @param next
+	 */
+	private void handlePostedForm(Session session, Request req, String next) {
+		Order order = null;
+		if((order = (Order) session.getAttribute("order")) != null) {
+			session.setAttribute("order", createOrder(order.getId(), req));
+		} else {
+			session.setAttribute("order", createOrder(null, req));
+		}
+		if(!next.equals(req.getPath())) {
+			req.getResponse().sendRedirect(301, next);
+		}
+	}
+
+	/**
+	 * Create an order from the request body
+	 * @param request
+	 * @return
+	 */
+	private Order createOrder(String id, Request request) {
 		Map<String,Object> form = new HashMap<String, Object>();
 		for(Map.Entry<String,Object> entry : request.getBodyAsMap().entrySet()) {
 			parseField(form, entry.getKey(), entry.getValue());
 		}
-		return form;
+		Order order = DataUtils.toObject(form, Order.class);
+		if(id == null) {
+			orderRepository.create(request.getVirtualHost(), order);
+		} else {
+			order.setId(id);
+			orderRepository.update(request.getVirtualHost(), id, order);
+		}
+		return order;
 	}
 	
+	/**
+	 * Parse a form request to a map
+	 * @param result
+	 * @param fieldname
+	 * @param value
+	 */
 	@SuppressWarnings("unchecked")
 	private void parseField(Map<String,Object> result, String fieldname, Object value) {
 		int start = fieldname.indexOf('[');
