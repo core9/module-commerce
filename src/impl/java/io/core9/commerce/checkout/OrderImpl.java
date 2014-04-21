@@ -1,11 +1,12 @@
 package io.core9.commerce.checkout;
 
+import io.core9.commerce.cart.Cart;
 import io.core9.plugin.database.repository.AbstractCrudEntity;
 import io.core9.plugin.database.repository.Collection;
 import io.core9.plugin.database.repository.CrudEntity;
 
 @Collection("core.orders")
-public class Order extends AbstractCrudEntity implements CrudEntity {
+public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 
 	/**
 	 * Address for an order
@@ -92,6 +93,7 @@ public class Order extends AbstractCrudEntity implements CrudEntity {
 	private Address billing;
 	private Address shipping;
 	private String paymentmethod;
+	private Cart cart;
 
 	public Address getBilling() {
 		return billing;
@@ -115,6 +117,16 @@ public class Order extends AbstractCrudEntity implements CrudEntity {
 
 	public void setPaymentmethod(String paymentmethod) {
 		this.paymentmethod = paymentmethod;
+	}
+
+	@Override
+	public Cart getCart() {
+		return cart;
+	}
+
+	@Override
+	public void setCart(Cart cart) {
+		this.cart = cart;
 	}
 
 }

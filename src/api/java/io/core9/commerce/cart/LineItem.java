@@ -1,29 +1,89 @@
 package io.core9.commerce.cart;
 
-interface LineItem {
+import java.util.UUID;
 
-	String getId();
+public class LineItem {
 
-	void setId(String id);
+	private String id;
+	private String producttype;
+	private String productid;
+	private int quantity;
+	private int price;
+	private String description;
+
 	
-	String getProducttype();
+	public String getId() {
+		return id;
+	}
 
-	void setProducttype(String producttype);
-
-	String getProductid();
-
-	void setProductid(String productid);
-
-	int getQuantity();
-
-	void setQuantity(int quantity);
 	
-	int getPrice();
+	public void setId(String id) {
+		this.id = id;
+	}
 	
-	void setPrice(int price);
+	
+	public String getProducttype() {
+		return producttype;
+	}
 
-	String getDescription();
+	
+	public void setProducttype(String producttype) {
+		this.producttype = producttype;
+	}
 
-	void setDescription(String description);
+	
+	
+	public String getProductid() {
+		return productid;
+	}
+
+	
+	public void setProductid(String productid) {
+		this.productid = productid;
+	}
+
+
+	
+	public int getQuantity() {
+		return quantity;
+	}
+
+	
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+	
+	
+	public int getPrice() {
+		return price;
+	}
+
+	
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
+	
+	public String getDescription() {
+		return description;
+	}
+
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public LineItem() {
+		
+	}
+	
+	public LineItem(String producttype, String productid, int quantity, int price, String description) {
+		this.id = UUID.randomUUID().toString();
+		this.producttype = producttype;
+		this.description = description;
+		this.price = price;
+		this.quantity = quantity;
+		this.productid = productid;
+	}
 
 }

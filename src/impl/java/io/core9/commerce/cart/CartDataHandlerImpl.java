@@ -45,7 +45,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
 				Session session = auth.getUser(req).getSession();
 				Cart cart = (Cart) session.getAttribute("cart");
 				if(cart == null) {
-					cart = new CartImpl();
+					cart = new Cart();
 				}
 				Map<String,Object> result = new HashMap<String,Object>();
 				result.put("items", MAPPER.convertValue(cart.getItems().values(), new TypeReference<List<Object>>(){}));

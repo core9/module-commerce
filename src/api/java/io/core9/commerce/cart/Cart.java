@@ -1,13 +1,22 @@
 package io.core9.commerce.cart;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public interface Cart {
+public class Cart {
 	
-	Map<String, LineItem> getItems();
-	
-	void addItem(LineItem item);
-	
-	void addItem(String id, int quantity, int price, String description);
+	Map<String, LineItem> items = new HashMap<String, LineItem>();
+
+	public void addItem(String id, int quantity, int price, String description) {
+		addItem(new LineItem("product", id, quantity, price, description));
+	}
+
+	public Map<String, LineItem> getItems() {
+		return this.items;
+	}
+
+	public void addItem(LineItem item) {
+		items.put(item.getId(), item);
+	}
 
 }

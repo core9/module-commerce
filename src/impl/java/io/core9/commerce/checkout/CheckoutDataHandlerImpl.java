@@ -1,5 +1,6 @@
 package io.core9.commerce.checkout;
 
+import io.core9.commerce.cart.Cart;
 import io.core9.commerce.payment.PaymentMethod;
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;
@@ -35,14 +36,14 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 	private AuthenticationPlugin auth;
 	
 	private CrudRepository<PaymentMethod> methodsRepository;
-	private CrudRepository<Order> orderRepository;
+	private CrudRepository<OrderImpl> orderRepository;
 	
 	private static final ObjectMapper MAPPER = new ObjectMapper(); 
 
 	@PluginLoaded
 	public void onRepositoryFactoryAvailable(RepositoryFactory factory) throws NoCollectionNamePresentException {
 		methodsRepository = factory.getRepository(PaymentMethod.class);
-		orderRepository = factory.getRepository(Order.class);
+		orderRepository = factory.getRepository(OrderImpl.class);
 	}
 
 	@Override
@@ -73,7 +74,7 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 					result.put("paymentmethods", MAPPER.convertValue(paymentMethods.values(), new TypeReference<List<Object>>() {}));
 
 					// Retrieve order
-					Order order = (Order) session.getAttribute("order");
+					OrderImpl order = (OrderImpl) session.getAttribute("order");
 					result.put("order", DataUtils.toMap(order));
 					
 					// Retrieve payment request options
@@ -98,7 +99,7 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 	 * @param order
 	 * @param result
 	 */
-	private void handlePaymentRequest(Map<String, PaymentMethod> paymentMethods, Request req, Order order, Map<String,Object> result) {
+	private void handlePaymentRequest(Map<String, PaymentMethod> paymentMethods, Request req, OrderImpl order, Map<String,Object> result) {
 		if(order != null && order.getPaymentmethod() != null) {
 			PaymentMethod method = paymentMethods.get(order.getPaymentmethod());
 			if(method == null) {
@@ -136,11 +137,11 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 	 * @param next
 	 */
 	private void handlePostedForm(Session session, Request req, String next) {
-		Order order = null;
-		if((order = (Order) session.getAttribute("order")) != null) {
-			session.setAttribute("order", createOrder(order.getId(), req));
+		OrderImpl order = null;
+		if((order = (OrderImpl) session.getAttribute("order")) != null) {
+			session.setAttribute("order", createOrder(order.getId(), req, session));
 		} else {
-			session.setAttribute("order", createOrder(null, req));
+			session.setAttribute("order", createOrder(null, req, session));
 		}
 		if(!next.equals(req.getPath())) {
 			req.getResponse().sendRedirect(301, next);
@@ -152,12 +153,14 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 	 * @param request
 	 * @return
 	 */
-	private Order createOrder(String id, Request request) {
+	private OrderImpl createOrder(String id, Request request, Session session) {
 		Map<String,Object> form = new HashMap<String, Object>();
 		for(Map.Entry<String,Object> entry : request.getBodyAsMap().entrySet()) {
 			parseField(form, entry.getKey(), entry.getValue());
 		}
-		Order order = DataUtils.toObject(form, Order.class);
+		OrderImpl order = DataUtils.toObject(form, OrderImpl.class);
+		Cart cart = (Cart) session.getAttribute("cart");
+		order.setCart(cart);
 		if(id == null) {
 			orderRepository.create(request.getVirtualHost(), order);
 		} else {

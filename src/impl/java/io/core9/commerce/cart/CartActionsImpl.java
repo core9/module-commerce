@@ -27,7 +27,7 @@ public class CartActionsImpl implements CartActions {
 				Session session = auth.getUser(request).getSession();
 				Cart cart = (Cart) session.getAttribute("cart");
 				if(cart == null) {
-					cart = new CartImpl();
+					cart = new Cart();
 				}
 				switch(request.getMethod()) {
 				case POST:
