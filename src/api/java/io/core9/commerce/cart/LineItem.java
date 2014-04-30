@@ -1,12 +1,10 @@
 package io.core9.commerce.cart;
 
-import java.util.UUID;
 
 public class LineItem {
 
 	private String id;
 	private String producttype;
-	private String productid;
 	private int quantity;
 	private int price;
 	private String description;
@@ -31,19 +29,6 @@ public class LineItem {
 		this.producttype = producttype;
 	}
 
-	
-	
-	public String getProductid() {
-		return productid;
-	}
-
-	
-	public void setProductid(String productid) {
-		this.productid = productid;
-	}
-
-
-	
 	public int getQuantity() {
 		return quantity;
 	}
@@ -77,13 +62,11 @@ public class LineItem {
 		
 	}
 	
-	public LineItem(String producttype, String productid, int quantity, int price, String description) {
-		this.id = UUID.randomUUID().toString();
-		this.producttype = producttype;
+	public LineItem(String id, int quantity, int price, String description) {
+		this.id = id;
 		this.description = description;
 		this.price = price;
 		this.quantity = quantity;
-		this.productid = productid;
 	}
 
 }

@@ -36,7 +36,7 @@ public class CartActionsImpl implements CartActions {
 					} else if (request.getParams().get("update") != null) {
 						updateItemInCart(cart, request.getBodyAsMap());
 					} else {
-						addItemToCart(cart, request.getBodyAsMap());
+						addItemToCart(cart, (String) request.getParams().get("itemid"), request.getBodyAsMap());
 					}
 					break;
 				case DELETE:
@@ -64,8 +64,12 @@ public class CartActionsImpl implements CartActions {
 		}
 	}
 	
-	private void addItemToCart(Cart cart, Map<String, Object> bodyAsMap) {
-		cart.addItem("ID", 12, 500, "Line item");
+	private void addItemToCart(Cart cart, String itemId, Map<String, Object> bodyAsMap) {
+		cart.addItem(
+				itemId, 
+				Integer.parseInt((String) bodyAsMap.get("quantity")), 
+				Integer.parseInt((String) bodyAsMap.get("price")), 
+				(String) bodyAsMap.get("description"));
 	}
 	
 	private void updateItemInCart(Cart cart, Map<String, Object> bodyAsMap) {
