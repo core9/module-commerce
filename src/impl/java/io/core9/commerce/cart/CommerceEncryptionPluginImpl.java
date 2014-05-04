@@ -48,7 +48,7 @@ public class CommerceEncryptionPluginImpl implements CommerceEncryptionPlugin {
 		SortedSet<String> mapKeys = new TreeSet<String>(map.keySet());
 		String input = "";
 		for(String mapKey : mapKeys) {
-			input += mapKey + map.get(mapKey) + key;
+			input += mapKey + "=" + map.get(mapKey) + key;
 		}
 		return encrypt(input.getBytes());
 	}
