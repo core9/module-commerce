@@ -1,5 +1,7 @@
 package io.core9.commerce.checkout;
 
+import java.util.Map;
+
 import io.core9.commerce.cart.Cart;
 import io.core9.plugin.database.repository.AbstractCrudEntity;
 import io.core9.plugin.database.repository.Collection;
@@ -93,7 +95,9 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	private Address billing;
 	private Address shipping;
 	private String paymentmethod;
+	private Map<String,Object> paymentData;
 	private Cart cart;
+	private boolean finalized;
 
 	public Address getBilling() {
 		return billing;
@@ -127,6 +131,26 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	@Override
 	public void setCart(Cart cart) {
 		this.cart = cart;
+	}
+
+	@Override
+	public Map<String, Object> getPaymentData() {
+		return paymentData;
+	}
+
+	@Override
+	public void setPaymentData(Map<String, Object> data) {
+		this.paymentData = data;
+	}
+
+	@Override
+	public boolean isFinalized() {
+		return this.finalized;
+	}
+
+	@Override
+	public void setFinalized(boolean finalized) {
+		this.finalized = finalized;
 	}
 
 }

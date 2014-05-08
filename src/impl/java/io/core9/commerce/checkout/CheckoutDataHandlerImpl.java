@@ -75,11 +75,26 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 
 					// Retrieve order
 					OrderImpl order = (OrderImpl) session.getAttribute("order");
+					String orderId = null;
+					if(order != null) {
+						 orderId = order.getId();
+					}
 					result.put("order", DataUtils.toMap(order));
 					
 					// Retrieve payment request options
 					handlePaymentRequest(paymentMethods, req, order, result);
+					if(orderId != null && !order.getId().equals(orderId)) {
+						// Order has changed, create new order number
+						orderRepository.create(req.getVirtualHost(), order);
+					}
 					break;
+				}
+				if(((CheckoutDataHandlerConfig) options).getDestroySession()) {
+					OrderImpl order = (OrderImpl) session.getAttribute("order");
+					order.setFinalized(true);
+					orderRepository.update(req.getVirtualHost(), order.getId(), order);
+					session.removeAttribute("order");
+					session.removeAttribute("cart");
 				}
 				return result;
 			}
@@ -162,6 +177,7 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 		Cart cart = (Cart) session.getAttribute("cart");
 		order.setCart(cart);
 		if(id == null || id != order.getId()) {
+			id = order.getId();
 			orderRepository.create(request.getVirtualHost(), order);
 		} else {
 			order.setId(id);
