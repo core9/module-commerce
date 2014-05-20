@@ -68,14 +68,23 @@ public class CartActionsImpl implements CartActions {
 		}
 	}
 	
+	/**
+	 * Add an item to the cart
+	 * TODO: Make dynamic lineItemTypes
+	 * @param cart
+	 * @param itemId
+	 * @param bodyAsMap
+	 */
 	private void addItemToCart(Cart cart, String itemId, Map<String, Object> bodyAsMap) {
 		int quantity = Integer.parseInt((String) bodyAsMap.get("quantity"));
 		if(quantity > 0 && isValid(bodyAsMap)) {
 			cart.addItem(
-				itemId, 
+				itemId,
 				quantity, 
 				Integer.parseInt((String) bodyAsMap.get("price")), 
-				(String) bodyAsMap.get("description"));
+				(String) bodyAsMap.get("description"),
+				(String) bodyAsMap.get("image"),
+				(String) bodyAsMap.get("link"));
 		}
 	}
 	

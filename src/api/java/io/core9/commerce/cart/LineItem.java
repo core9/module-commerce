@@ -8,6 +8,8 @@ public class LineItem {
 	private int quantity;
 	private int price;
 	private String description;
+	private String image;
+	private String link;
 
 	
 	public String getId() {
@@ -62,11 +64,31 @@ public class LineItem {
 		
 	}
 	
-	public LineItem(String id, int quantity, int price, String description) {
+	public String getImage() {
+		return image;
+	}
+
+	
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+	public String getLink() {
+		return link;
+	}
+
+
+	public void setLink(String link) {
+		this.link = link;
+	}
+	
+	public LineItem(String id, int quantity, int price, String description, String image, String link) {
 		this.id = id;
+		this.image = image;
 		this.description = description;
 		this.price = price;
 		this.quantity = quantity;
+		this.link = link;
 	}
 
 }

@@ -7,8 +7,8 @@ public class Cart {
 	
 	Map<String, LineItem> items = new HashMap<String, LineItem>();
 
-	public void addItem(String id, int quantity, int price, String description) {
-		addItem(new LineItem(id, quantity, price, description));
+	public void addItem(String id, int quantity, int price, String description, String image, String link) {
+		addItem(new LineItem(id, quantity, price, description, image, link));
 	}
 
 	public Map<String, LineItem> getItems() {
