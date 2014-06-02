@@ -1,6 +1,8 @@
 package io.core9.commerce.cart;
 
-public class EncryptionProcessorConfig {
+import io.core9.plugin.importer.processor.ImporterConfig;
+
+public class EncryptionProcessorConfig extends ImporterConfig {
 
 	private String contentType;
 

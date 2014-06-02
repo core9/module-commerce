@@ -2,14 +2,14 @@ package io.core9.commerce.cart;
 
 import io.core9.plugin.database.mongodb.MongoDatabase;
 import io.core9.plugin.importer.processor.AbstractProcessor;
-import io.core9.plugin.importer.processor.Processor;
+import io.core9.plugin.importer.processor.ImporterConfig;
 import io.core9.plugin.server.VirtualHost;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EncryptionProcessor extends AbstractProcessor<EncryptionProcessorConfig> implements Processor<EncryptionProcessorConfig>{
+public class EncryptionProcessor extends AbstractProcessor<EncryptionProcessorConfig> {
 	
 	private CommerceEncryptionPlugin encryption;
 
@@ -18,7 +18,7 @@ public class EncryptionProcessor extends AbstractProcessor<EncryptionProcessorCo
 	}
 
 	@Override
-	public Class<?> getConfigClass() {
+	public Class<? extends ImporterConfig> getConfigClass() {
 		return EncryptionProcessorConfig.class;
 	}
 
