@@ -122,7 +122,10 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 			}
 			result.put("payment", MAPPER.convertValue(method, new TypeReference<Map<String,Object>>() {}));
 			Widget widget = widgets.getRegistry(req.getVirtualHost()).get(method.getWidget());
-			DataHandler<?> handler = widget.getDataHandler();
+			DataHandler<?> handler = null;
+			if(widget != null) {
+				handler = widget.getDataHandler();;
+			}
 			if(handler != null) {
 				result.put("paymentData", widget.getDataHandler().handle(req));
 			} else {
