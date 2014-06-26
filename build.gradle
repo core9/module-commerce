@@ -23,7 +23,6 @@ dependencies {
   apiCompile 'io.core9:core-api:+'
   apiCompile 'io.core9:module-widgets-api:+'
   apiCompile 'io.core9:module-database-api:+'
-  implCompile 'io.core9:module-server-vertx-api:+'
   implCompile 'io.core9:module-authentication-api:+'
   implCompile 'io.core9:module-import-api:+'
 }

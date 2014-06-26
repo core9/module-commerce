@@ -2,9 +2,9 @@ package io.core9.commerce.cart;
 
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;
+import io.core9.plugin.server.Server;
 import io.core9.plugin.server.handler.Middleware;
 import io.core9.plugin.server.request.Request;
-import io.core9.plugin.server.vertx.VertxServer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class CartActionsImpl implements CartActions {
 	private CommerceEncryptionPlugin encryption;
 	
 	@PluginLoaded
-	public void onServerLoaded(VertxServer server) {
+	public void onServerLoaded(Server server) {
 		server.use("/core/cart(/:itemid)*", new Middleware() {
 			@Override
 			public void handle(Request request) {
