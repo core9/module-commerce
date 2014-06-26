@@ -173,7 +173,7 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 	 */
 	private OrderImpl createOrder(String id, Request request, Session session) {
 		Map<String,Object> form = new HashMap<String, Object>();
-		for(Map.Entry<String,Object> entry : request.getBodyAsMap().entrySet()) {
+		for(Map.Entry<String,Object> entry : request.getBodyAsMap().toBlocking().last().entrySet()) {
 			parseField(form, entry.getKey(), entry.getValue());
 		}
 		OrderImpl order = DataUtils.toObject(form, OrderImpl.class);

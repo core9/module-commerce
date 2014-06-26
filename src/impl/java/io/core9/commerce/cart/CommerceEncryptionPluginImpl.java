@@ -27,7 +27,7 @@ public class CommerceEncryptionPluginImpl implements CommerceEncryptionPlugin {
 
 	@Override
 	public void handle(Request request) {
-		request.getResponse().end(encrypt(request.getBodyAsMap()));
+		request.getResponse().end(encrypt(request.getBodyAsMap().toBlocking().last()));
 	}
 
 	@Override

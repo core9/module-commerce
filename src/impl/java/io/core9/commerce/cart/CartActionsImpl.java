@@ -28,6 +28,7 @@ public class CartActionsImpl implements CartActions {
 		server.use("/core/cart(/:itemid)*", new Middleware() {
 			@Override
 			public void handle(Request request) {
+				Map<String,Object> requestBody = request.getBodyAsMap().toBlocking().last();
 				Session session = auth.getUser(request).getSession();
 				Cart cart = (Cart) session.getAttribute("cart");
 				if(cart == null) {
@@ -38,23 +39,23 @@ public class CartActionsImpl implements CartActions {
 					if(request.getParams().get("delete") != null) {
 						deleteItemFromCart(cart, (String) request.getParams().get("itemid"));
 					} else if (request.getParams().get("update") != null) {
-						updateItemInCart(cart, request.getBodyAsMap());
+						updateItemInCart(cart, requestBody);
 					} else {
-						addItemToCart(cart, (String) request.getParams().get("itemid"), request.getBodyAsMap());
+						addItemToCart(cart, (String) request.getParams().get("itemid"), requestBody);
 					}
 					break;
 				case DELETE:
 					deleteItemFromCart(cart, (String) request.getParams().get("itemid"));
 					break;
 				case PUT:
-					updateItemInCart(cart, request.getBodyAsMap());
+					updateItemInCart(cart, requestBody);
 					break;
 				default:
 					break;
 				}
 				session.setAttribute("cart", cart);
-				if(request.getBodyAsMap().get("redirect") != null) {
-					request.getResponse().sendRedirect(301, (String) request.getBodyAsMap().get("redirect"));
+				if(requestBody.get("redirect") != null) {
+					request.getResponse().sendRedirect(301, (String) requestBody.get("redirect"));
 				} else {
 					request.getResponse().sendJsonArray(new ArrayList<LineItem>(cart.getItems().values()));
 				}
