@@ -93,6 +93,14 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 			this.telephone = telephone;
 		}
 
+		public String getEmail() {
+			return email;
+		}
+
+		public void setEmail(String email) {
+			this.email = email;
+		}
+
 		private String lname;
 		private String street;
 		private String street2;
@@ -100,6 +108,7 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 		private String city;
 		private String country;
 		private String telephone;
+		private String email;
 	}
 
 	private Address billing;
@@ -109,6 +118,7 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	private Cart cart;
 	private LineItem shippingCost;
 	private boolean finalized;
+	private String remark;
 
 	public Address getBilling() {
 		return billing;
@@ -180,6 +190,16 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 			return cart.getTotal()  + shippingCost.getPrice();
 		}
 		return cart.getTotal();
+	}
+
+	@Override
+	public String getRemark() {
+		return remark;
+	}
+
+	@Override
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 }

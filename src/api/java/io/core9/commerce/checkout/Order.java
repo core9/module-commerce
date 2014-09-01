@@ -72,4 +72,16 @@ public interface Order {
 	 * @return
 	 */
 	int getTotal();
+	
+	/**
+	 * Set an order remark
+	 * @param remark
+	 */
+	void setRemark(String remark);
+	
+	/**
+	 * Get the order remarks
+	 * @return
+	 */
+	String getRemark();
 }
