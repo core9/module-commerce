@@ -3,6 +3,7 @@ package io.core9.commerce.checkout;
 import java.util.Map;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.commerce.cart.LineItem;
 import io.core9.plugin.database.repository.AbstractCrudEntity;
 import io.core9.plugin.database.repository.Collection;
 import io.core9.plugin.database.repository.CrudEntity;
@@ -76,6 +77,14 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 			this.city = city;
 		}
 
+		public String getCountry() {
+			return country;
+		}
+
+		public void setCountry(String country) {
+			this.country = country;
+		}
+
 		public String getTelephone() {
 			return telephone;
 		}
@@ -89,6 +98,7 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 		private String street2;
 		private String postalcode;
 		private String city;
+		private String country;
 		private String telephone;
 	}
 
@@ -97,6 +107,7 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	private String paymentmethod;
 	private Map<String,Object> paymentData;
 	private Cart cart;
+	private LineItem shippingCost;
 	private boolean finalized;
 
 	public Address getBilling() {
@@ -134,6 +145,16 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	}
 
 	@Override
+	public LineItem getShippingCost() {
+		return shippingCost;
+	}
+
+	@Override
+	public void setShippingCost(LineItem shippingCost) {
+		this.shippingCost = shippingCost;
+	}
+
+	@Override
 	public Map<String, Object> getPaymentData() {
 		return paymentData;
 	}
@@ -151,6 +172,14 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	@Override
 	public void setFinalized(boolean finalized) {
 		this.finalized = finalized;
+	}
+
+	@Override
+	public int getTotal() {
+		if(shippingCost != null) {
+			return cart.getTotal()  + shippingCost.getPrice();
+		}
+		return cart.getTotal();
 	}
 
 }

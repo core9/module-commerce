@@ -2,6 +2,7 @@ package io.core9.commerce.checkout;
 
 import io.core9.commerce.cart.Cart;
 import io.core9.commerce.payment.PaymentMethod;
+import io.core9.core.boot.CoreBootStrategy;
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;
 import io.core9.plugin.database.repository.CrudRepository;
@@ -19,15 +20,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.xeoh.plugins.base.Plugin;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import net.xeoh.plugins.base.annotations.events.PluginLoaded;
 import net.xeoh.plugins.base.annotations.injections.InjectPlugin;
+
+import org.apache.commons.lang3.ClassUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @PluginImplementation
-public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
+public class CheckoutDataHandlerImpl extends CoreBootStrategy implements CheckoutDataHandler {
+	
+	private static final Map<String, CheckoutProcessor> PROCESSORS = new HashMap<String, CheckoutProcessor>();
 	
 	@InjectPlugin
 	private WidgetFactory widgets;
@@ -59,6 +65,7 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 	@Override
 	public DataHandler<CheckoutDataHandlerConfig> createDataHandler(final DataHandlerFactoryConfig options) {
 		return new DataHandler<CheckoutDataHandlerConfig>() {
+			CheckoutDataHandlerConfig config = (CheckoutDataHandlerConfig) options;
 
 			@Override
 			public Map<String, Object> handle(Request req) {
@@ -66,19 +73,27 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 				Session session = auth.getUser(req).getSession();
 				switch(req.getMethod()) {
 				case POST:
-					handlePostedForm(session, req, ((CheckoutDataHandlerConfig) options).getNextStep());
+					handlePostedForm(session, req, config.getNextStep());
 					break;
 				default:
 					// Retrieve payment method information
 					Map<String, PaymentMethod> paymentMethods = retrievePaymentMethodsForVhost(req.getVirtualHost());
 					result.put("paymentmethods", MAPPER.convertValue(paymentMethods.values(), new TypeReference<List<Object>>() {}));
-
+					
 					// Retrieve order
 					OrderImpl order = (OrderImpl) session.getAttribute("order");
 					String orderId = null;
 					if(order != null) {
 						 orderId = order.getId();
 					}
+					
+					// Handle processors
+					if(config.getProcessors() != null) {
+						for(String processor : config.getProcessors()) {
+							PROCESSORS.get(processor).process(order);
+						}
+					}
+					
 					result.put("order", DataUtils.toMap(order));
 					
 					// Retrieve payment request options
@@ -89,7 +104,7 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 					}
 					break;
 				}
-				if(((CheckoutDataHandlerConfig) options).getDestroySession()) {
+				if(config.getDestroySession()) {
 					OrderImpl order = (OrderImpl) session.getAttribute("order");
 					order.setFinalized(true);
 					orderRepository.update(req.getVirtualHost(), order.getId(), order);
@@ -101,7 +116,7 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 
 			@Override
 			public CheckoutDataHandlerConfig getOptions() {
-				return (CheckoutDataHandlerConfig) options;
+				return config;
 			}
 		};
 	}
@@ -209,5 +224,23 @@ public class CheckoutDataHandlerImpl implements CheckoutDataHandler {
 		} else {
 			result.put(fieldname, value);
 		}
+	}
+
+	@Override
+	public void processPlugins() {
+		for (Plugin plugin : this.registry.getPlugins()) {
+			List<Class<?>> interfaces = ClassUtils.getAllInterfaces(plugin.getClass());
+			if (interfaces.contains(CheckoutProcessor.class)) {
+				CheckoutProcessor processor = (CheckoutProcessor) plugin;
+				PROCESSORS.put(processor.getName(), processor);
+				System.out.println("Found admin plugin." + processor.getName());
+			}
+		}
+
+	}
+
+	@Override
+	public Integer getPriority() {
+		return 20130;
 	}
 }

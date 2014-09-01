@@ -1,6 +1,7 @@
 package io.core9.commerce.checkout;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.commerce.cart.LineItem;
 
 import java.util.Map;
 
@@ -53,5 +54,22 @@ public interface Order {
 	 * @return
 	 */
 	void setFinalized(boolean finalized);
+
+	/**
+	 * Get the shipping costs for an order
+	 * @return
+	 */
+	LineItem getShippingCost();
 	
+	/**
+	 * Set the shipping costs for an order
+	 * @return
+	 */
+	void setShippingCost(LineItem shippingCost);
+	
+	/**
+	 * Get the order total
+	 * @return
+	 */
+	int getTotal();
 }
