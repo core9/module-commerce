@@ -20,6 +20,10 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	public class Address {
 		private String company;
 		private String fname;
+		
+		public Address() {
+			
+		}
 
 		public String getCompany() {
 			return company;
