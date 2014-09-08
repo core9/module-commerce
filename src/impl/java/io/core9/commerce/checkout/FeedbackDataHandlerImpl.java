@@ -4,6 +4,7 @@ import io.core9.commerce.payment.PaymentMethod;
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;
 import io.core9.plugin.database.repository.CrudRepository;
+import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.database.repository.NoCollectionNamePresentException;
 import io.core9.plugin.database.repository.RepositoryFactory;
 import io.core9.plugin.server.VirtualHost;
@@ -65,6 +66,7 @@ public class FeedbackDataHandlerImpl implements FeedbackDataHandler {
 		final FeedbackDataHandlerConfig config = (FeedbackDataHandlerConfig) options;
 		return new DataHandler<FeedbackDataHandlerConfig> () {
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public Map<String, Object> handle(Request req) {
 				boolean orderAlreadyOnSession = true;
@@ -80,7 +82,12 @@ public class FeedbackDataHandlerImpl implements FeedbackDataHandler {
 					return result;
 				}
 				Session session = auth.getUser(req).getSession();
-				OrderImpl order = (OrderImpl) session.getAttribute("order");
+				// Retrieve order
+				Object tmp = session.getAttribute("order");
+				OrderImpl order = null;
+				if(tmp instanceof Map) {
+					order = DataUtils.toObject((Map<String,Object>) tmp, OrderImpl.class);
+				}
 				if(order != null && !order.getId().equals(orderId)) {
 					result.put("error", "You are processing a different order number, cannot process the request.");
 					return result;
@@ -92,7 +99,7 @@ public class FeedbackDataHandlerImpl implements FeedbackDataHandler {
 						result.put("error", "Your order isn't known, cannot process the request.");
 						return result;
 					} else {
-						session.setAttribute("order", order);
+						session.setAttribute("order", DataUtils.toMap(order));
 					}
 				}
 				if(order != null && order.getPaymentmethod() != null) {
@@ -101,7 +108,11 @@ public class FeedbackDataHandlerImpl implements FeedbackDataHandler {
 					DataHandler<?> handler = widget.getDataHandler();
 					if(handler != null) {
 						result.put("paymentData", widget.getDataHandler().handle(req));
-						OrderImpl updated = (OrderImpl) session.getAttribute("order");
+						Object tmp2 = session.getAttribute("order");
+						OrderImpl updated = null;
+						if(tmp instanceof Map) {
+							updated = DataUtils.toObject((Map<String,Object>) tmp2, OrderImpl.class);
+						}
 						orderRepository.update(req.getVirtualHost(), updated.getId(), updated);
 					} else {
 						result.put("paymentData", "");

@@ -3,6 +3,8 @@ package io.core9.commerce.cart;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Cart {
 	
 	Map<String, LineItem> items = new HashMap<String, LineItem>();
@@ -22,6 +24,7 @@ public class Cart {
 		items.put(item.getId(), item);
 	}
 	
+	@JsonIgnore
 	public int getTotal() {
 		int total = 0;
 		for(LineItem item : items.values()) {

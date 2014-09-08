@@ -2,6 +2,8 @@ package io.core9.commerce.checkout;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import io.core9.commerce.cart.Cart;
 import io.core9.commerce.cart.LineItem;
 import io.core9.plugin.database.repository.AbstractCrudEntity;
@@ -84,6 +86,7 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 		this.finalized = finalized;
 	}
 
+	@JsonIgnore
 	@Override
 	public int getTotal() {
 		if(shippingCost != null) {

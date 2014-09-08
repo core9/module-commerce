@@ -2,6 +2,7 @@ package io.core9.commerce.cart;
 
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;
+import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
@@ -40,10 +41,15 @@ public class CartDataHandlerImpl implements CartDataHandler {
 	public DataHandler<DataHandlerDefaultConfig> createDataHandler(final DataHandlerFactoryConfig options) {
 		return new DataHandler<DataHandlerDefaultConfig>() {
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public Map<String, Object> handle(Request req) {
 				Session session = auth.getUser(req).getSession();
-				Cart cart = (Cart) session.getAttribute("cart");
+				Object tmp = session.getAttribute("cart");
+				Cart cart = null;
+				if(tmp instanceof Map) {
+					cart = DataUtils.toObject((Map<String, Object>) tmp, Cart.class); 
+				}
 				if(cart == null) {
 					cart = new Cart();
 				}

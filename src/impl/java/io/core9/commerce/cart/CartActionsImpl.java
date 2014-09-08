@@ -2,6 +2,7 @@ package io.core9.commerce.cart;
 
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;
+import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.server.Server;
 import io.core9.plugin.server.handler.Middleware;
 import io.core9.plugin.server.request.Request;
@@ -26,11 +27,16 @@ public class CartActionsImpl implements CartActions {
 	@PluginLoaded
 	public void onServerLoaded(Server server) {
 		server.use("/core/cart(/:itemid)*", new Middleware() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void handle(Request request) {
 				Map<String,Object> requestBody = request.getBodyAsMap().toBlocking().last();
 				Session session = auth.getUser(request).getSession();
-				Cart cart = (Cart) session.getAttribute("cart");
+				Object tmp = session.getAttribute("cart");
+				Cart cart = null;
+				if(tmp instanceof Map) {
+					cart = DataUtils.toObject((Map<String, Object>) tmp, Cart.class); 
+				}
 				if(cart == null) {
 					cart = new Cart();
 				}
@@ -53,7 +59,7 @@ public class CartActionsImpl implements CartActions {
 				default:
 					break;
 				}
-				session.setAttribute("cart", cart);
+				session.setAttribute("cart", DataUtils.toMap(cart));
 				if(requestBody.get("redirect") != null) {
 					request.getResponse().sendRedirect(301, (String) requestBody.get("redirect"));
 				} else {
