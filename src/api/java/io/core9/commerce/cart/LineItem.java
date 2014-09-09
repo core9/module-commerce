@@ -1,8 +1,12 @@
 package io.core9.commerce.cart;
 
+import java.io.Serializable;
 
-public class LineItem {
 
+public class LineItem implements Serializable {
+
+	private static final long serialVersionUID = -3744618595117264970L;
+	
 	private String id;
 	private String producttype;
 	private int quantity;

@@ -67,7 +67,6 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 		return new DataHandler<CheckoutDataHandlerConfig>() {
 			CheckoutDataHandlerConfig config = (CheckoutDataHandlerConfig) options;
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public Map<String, Object> handle(Request req) {
 				Map<String, Object> result = new HashMap<String, Object>();
@@ -82,11 +81,7 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 					result.put("paymentmethods", MAPPER.convertValue(paymentMethods.values(), new TypeReference<List<Object>>() {}));
 					
 					// Retrieve order
-					Object tmp = session.getAttribute("order");
-					OrderImpl order = null;
-					if(tmp instanceof Map) {
-						order = DataUtils.toObject((Map<String,Object>) tmp, OrderImpl.class);
-					}
+					OrderImpl order = (OrderImpl) session.getAttribute("order");
 					String orderId = null;
 					if(order != null) {
 						 orderId = order.getId();
@@ -111,11 +106,7 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 				}
 				if(config.getDestroySession()) {
 					// Retrieve order
-					Object tmp = session.getAttribute("order");
-					OrderImpl order = null;
-					if(tmp instanceof Map) {
-						order = DataUtils.toObject((Map<String,Object>) tmp, OrderImpl.class);
-					}
+					OrderImpl order = (OrderImpl) session.getAttribute("order");
 					order.setFinalized(true);
 					orderRepository.update(req.getVirtualHost(), order.getId(), order);
 					session.removeAttribute("order");
@@ -179,14 +170,9 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 	 * @param req
 	 * @param next
 	 */
-	@SuppressWarnings("unchecked")
 	private void handlePostedForm(Session session, Request req, String next) {
-		OrderImpl order = null;
 		// Retrieve order
-		Object tmp = session.getAttribute("order");
-		if(tmp instanceof Map) {
-			order = DataUtils.toObject((Map<String,Object>) tmp, OrderImpl.class);
-		}
+		OrderImpl order = (OrderImpl) session.getAttribute("order");
 		if(order != null) {
 			session.setAttribute("order", createOrder(order.getId(), req, session));
 		} else {
@@ -202,18 +188,13 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 	 * @param request
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	private OrderImpl createOrder(String id, Request request, Session session) {
 		Map<String,Object> form = new HashMap<String, Object>();
 		for(Map.Entry<String,Object> entry : request.getBodyAsMap().toBlocking().last().entrySet()) {
 			parseField(form, entry.getKey(), entry.getValue());
 		}
 		OrderImpl order = DataUtils.toObject(form, OrderImpl.class);
-		Object tmp = session.getAttribute("cart");
-		Cart cart = null;
-		if(tmp instanceof Map) {
-			cart = DataUtils.toObject((Map<String, Object>) tmp, Cart.class); 
-		}
+		Cart cart = (Cart) session.getAttribute("cart");
 		order.setCart(cart);
 		if(id == null || id != order.getId()) {
 			id = order.getId();

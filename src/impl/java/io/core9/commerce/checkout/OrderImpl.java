@@ -6,14 +6,14 @@ import io.core9.plugin.database.repository.AbstractCrudEntity;
 import io.core9.plugin.database.repository.Collection;
 import io.core9.plugin.database.repository.CrudEntity;
 
+import java.io.Serializable;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Collection("core.orders")
-public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
+public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order, Serializable {
 
+	private static final long serialVersionUID = -7647420231452397432L;
+	
 	private Address billing;
 	private Address shipping;
 	private String paymentmethod;

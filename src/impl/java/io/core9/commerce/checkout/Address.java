@@ -1,6 +1,10 @@
 package io.core9.commerce.checkout;
 
-public class Address {
+import java.io.Serializable;
+
+public class Address implements Serializable {
+	
+	private static final long serialVersionUID = 2659845489254965523L;
 	private String company;
 	private String fname;
 	private String lname;

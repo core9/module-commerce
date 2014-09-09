@@ -1,11 +1,14 @@
 package io.core9.commerce.cart;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class Cart {
+public class Cart implements Serializable {
+	
+	private static final long serialVersionUID = 2485275694155939983L;
 	
 	Map<String, LineItem> items = new HashMap<String, LineItem>();
 
