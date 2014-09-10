@@ -25,4 +25,6 @@ dependencies {
   apiCompile 'io.core9:module-database-api:+'
   implCompile 'io.core9:module-authentication-api:+'
   implCompile 'io.core9:module-import-api:+'
+  implCompile 'io.core9:module-mail-api:+'
+  implCompile 'io.core9:module-template-engine-closure-api:+'
 }

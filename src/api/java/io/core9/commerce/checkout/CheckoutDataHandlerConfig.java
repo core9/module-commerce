@@ -10,6 +10,11 @@ public class CheckoutDataHandlerConfig extends DataHandlerDefaultConfig	implemen
 	private List<String> processors;
 	private String nextStep;
 	private boolean destroySession;
+	
+	private String mailerProfile;
+	private String mailerFromAddress;
+	private String mailerSubject;
+	private String mailerTemplate;
 
 	public String getNextStep() {
 		return nextStep;
@@ -33,6 +38,38 @@ public class CheckoutDataHandlerConfig extends DataHandlerDefaultConfig	implemen
 
 	public void setProcessors(List<String> processors) {
 		this.processors = processors;
+	}
+	
+	public String getMailerProfile() {
+		return this.mailerProfile;
+	}
+	
+	public void setMailerProfile(String mailerProfile) {
+		this.mailerProfile = mailerProfile;
+	}
+
+	public String getMailerFromAddress() {
+		return mailerFromAddress;
+	}
+
+	public void setMailerFromAddress(String mailerFromAddress) {
+		this.mailerFromAddress = mailerFromAddress;
+	}
+
+	public String getMailerSubject() {
+		return mailerSubject;
+	}
+
+	public void setMailerSubject(String mailerSubject) {
+		this.mailerSubject = mailerSubject;
+	}
+
+	public String getMailerTemplate() {
+		return mailerTemplate;
+	}
+
+	public void setMailerTemplate(String mailerTemplate) {
+		this.mailerTemplate = mailerTemplate;
 	}
 
 }
