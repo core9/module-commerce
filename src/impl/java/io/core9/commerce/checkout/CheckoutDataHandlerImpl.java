@@ -109,7 +109,7 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 							PROCESSORS.get(processor).process(order);
 						}
 					}
-					
+					session.setAttribute("order", order);
 					result.put("order", DataUtils.toMap(order));
 					
 					// Retrieve payment request options
