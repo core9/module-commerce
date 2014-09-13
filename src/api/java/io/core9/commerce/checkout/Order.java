@@ -84,4 +84,28 @@ public interface Order {
 	 * @return
 	 */
 	String getRemark();
+	
+	/**
+	 * Set an optional order status	
+	 * @param status
+	 */
+	void setStatus(String status);
+	
+	/**
+	 * Return the order status
+	 * @return
+	 */
+	String getStatus();
+	
+	/**
+	 * Set an optional order message
+	 * @param message
+	 */
+	void setMessage(String message);
+	
+	/**
+	 * Get the order message
+	 * @return
+	 */
+	String getMessage();
 }

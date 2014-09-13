@@ -98,13 +98,16 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 					
 					// Retrieve order
 					OrderImpl order = (OrderImpl) session.getAttribute("order");
+					
 					String orderId = null;
 					if(order != null) {
 						 orderId = order.getId();
+						 Cart cart = (Cart) session.getAttribute("cart");
+						 order.setCart(cart);
 					}
 					
 					// Handle processors
-					if(config.getProcessors() != null) {
+					if(config.getProcessors() != null && order != null) {
 						for(String processor : config.getProcessors()) {
 							PROCESSORS.get(processor).process(order);
 						}
