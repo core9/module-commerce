@@ -14,6 +14,7 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order, 
 
 	private static final long serialVersionUID = -7647420231452397432L;
 	
+	private String _id;
 	private Address billing;
 	private Address shipping;
 	private String paymentmethod;
@@ -24,6 +25,21 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order, 
 	private String remark;
 	private String status;
 	private String message;
+	
+	public String getId() {
+		if(_id == null) {
+			_id = super.getId();
+		}
+		return _id;
+	}
+	
+	public String get_id() {
+		return getId();
+	}
+	
+	public void setId(String id) {
+		this._id = id;
+	}
 	
 	public String getMessage() {
 		return message;

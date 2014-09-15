@@ -11,6 +11,8 @@ import io.core9.plugin.database.repository.CrudRepository;
 import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.database.repository.NoCollectionNamePresentException;
 import io.core9.plugin.database.repository.RepositoryFactory;
+import io.core9.plugin.server.Cookie;
+import io.core9.plugin.server.Server;
 import io.core9.plugin.server.VirtualHost;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.template.closure.ClosureTemplateEngine;
@@ -57,6 +59,9 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 	@InjectPlugin
 	private ClosureTemplateEngine engine;
 	
+	@InjectPlugin
+	private Server server;
+	
 	private CrudRepository<PaymentMethod> methodsRepository;
 	private CrudRepository<OrderImpl> orderRepository;
 	
@@ -86,7 +91,15 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 			@Override
 			public Map<String, Object> handle(Request req) {
 				Map<String, Object> result = new HashMap<String, Object>();
-				Session session = auth.getUser(req).getSession();
+				//FIXME QUICK AND DIRTY OGONE ERROR FIX
+				Session session = null;
+				if(req.getParams().get("COMPLUS") != null && req.getCookie("CORE9SESSIONID") == null) {
+					Cookie cookie = server.newCookie("CORE9SESSIONID");
+					cookie.setValue((String) req.getParams().get("COMPLUS"));
+					session = auth.getUser(req, cookie).getSession();
+				} else {
+					session = auth.getUser(req).getSession();
+				}
 				switch(req.getMethod()) {
 				case POST:
 					handlePostedForm(session, req, config.getNextStep());
@@ -99,11 +112,11 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 					// Retrieve order
 					OrderImpl order = (OrderImpl) session.getAttribute("order");
 					
-					String orderId = null;
 					if(order != null) {
-						 orderId = order.getId();
-						 Cart cart = (Cart) session.getAttribute("cart");
-						 order.setCart(cart);
+						String orderId = order.getId(); // HAS TO BE CALLED TO GENERATE ID
+						System.out.println(orderId);
+						Cart cart = (Cart) session.getAttribute("cart");
+						order.setCart(cart);
 					}
 					
 					// Handle processors
@@ -112,14 +125,14 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 							PROCESSORS.get(processor).process(order);
 						}
 					}
+					
 					session.setAttribute("order", order);
 					result.put("order", DataUtils.toMap(order));
 					
 					// Retrieve payment request options
 					handlePaymentRequest(paymentMethods, req, order, result);
-					if(orderId != null && !order.getId().equals(orderId)) {
-						// Order has changed, create new order number
-						orderRepository.create(req.getVirtualHost(), order);
+					if(order != null && order.getId() != null) {
+						orderRepository.upsert(req.getVirtualHost(), order);
 					}
 					break;
 				}
@@ -127,7 +140,7 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 					// Retrieve order
 					OrderImpl order = (OrderImpl) session.getAttribute("order");
 					order.setFinalized(true);
-					orderRepository.update(req.getVirtualHost(), order.getId(), order);
+					orderRepository.upsert(req.getVirtualHost(), order);
 					session.removeAttribute("order");
 					session.removeAttribute("cart");
 					try {
@@ -227,7 +240,7 @@ public class CheckoutDataHandlerImpl extends CoreBootStrategy implements Checkou
 		OrderImpl order = DataUtils.toObject(form, OrderImpl.class);
 		Cart cart = (Cart) session.getAttribute("cart");
 		order.setCart(cart);
-		if(id == null || id != order.getId()) {
+		if(id == null) {
 			id = order.getId();
 			orderRepository.create(request.getVirtualHost(), order);
 		} else {
