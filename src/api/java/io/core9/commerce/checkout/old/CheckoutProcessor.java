@@ -1,4 +1,4 @@
-package io.core9.commerce.checkout;
+package io.core9.commerce.checkout.old;
 
 public interface CheckoutProcessor {
 

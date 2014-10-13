@@ -1,5 +1,8 @@
-package io.core9.commerce.cart;
+package io.core9.commerce.cart.old;
 
+import io.core9.commerce.CommerceDataHandlerHelper;
+import io.core9.commerce.cart.old.Cart;
+import io.core9.commerce.cart.old.CartDataHandler;
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;
 import io.core9.plugin.server.request.Request;
@@ -23,8 +26,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 	
 	@InjectPlugin
-	private AuthenticationPlugin auth;
-
+	private CommerceDataHandlerHelper helper;
 
 	@Override
 	public String getName() {
@@ -42,11 +44,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
 
 			@Override
 			public Map<String, Object> handle(Request req) {
-				Session session = auth.getUser(req).getSession();
-				Cart cart = (Cart) session.getAttribute("cart");
-				if(cart == null) {
-					cart = new Cart();
-				}
+				Cart cart = helper.getCart(req);
 				Map<String,Object> result = new HashMap<String,Object>();
 				result.put("items", MAPPER.convertValue(cart.getItems().values(), new TypeReference<List<Object>>(){}));
 				result.put("total", cart.getTotal());

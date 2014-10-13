@@ -1,4 +1,4 @@
-package io.core9.commerce.checkout;
+package io.core9.commerce.checkout.old;
 
 import io.core9.core.boot.BootStrategy;
 import io.core9.core.plugin.Core9Plugin;

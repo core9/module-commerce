@@ -1,4 +1,4 @@
-package io.core9.commerce.payment;
+package io.core9.commerce.payment.old;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,6 @@ import io.core9.plugin.database.repository.CrudEntity;
 @Collection("configuration")
 public class PaymentMethod extends AbstractCrudEntity implements CrudEntity {
 	
-	private static final long serialVersionUID = -316965956494709138L;
 	private static final Map<String,Object> DEFAULT_QUERY = new HashMap<String, Object>();
 	
 	static {

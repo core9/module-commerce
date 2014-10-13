@@ -1,5 +1,9 @@
-package io.core9.commerce.cart;
+package io.core9.commerce.cart.old;
 
+import io.core9.commerce.cart.old.Cart;
+import io.core9.commerce.cart.old.CartActions;
+import io.core9.commerce.cart.old.CommerceEncryptionPlugin;
+import io.core9.commerce.cart.old.LineItem;
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;
 import io.core9.plugin.server.Server;

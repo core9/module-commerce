@@ -1,5 +1,6 @@
-package io.core9.commerce.cart;
+package io.core9.commerce.cart.old;
 
+import io.core9.commerce.cart.old.CommerceEncryptionPlugin;
 import io.core9.plugin.database.mongodb.MongoDatabase;
 import io.core9.plugin.importer.processor.AbstractProcessor;
 import io.core9.plugin.importer.processor.ImporterConfig;

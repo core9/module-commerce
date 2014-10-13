@@ -1,4 +1,4 @@
-package io.core9.commerce.cart;
+package io.core9.commerce.cart.old;
 
 import java.io.Serializable;
 import java.util.HashMap;

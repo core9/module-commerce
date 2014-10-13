@@ -1,7 +1,7 @@
-package io.core9.commerce.checkout;
+package io.core9.commerce.checkout.old;
 
-import io.core9.commerce.cart.Cart;
-import io.core9.commerce.cart.LineItem;
+import io.core9.commerce.cart.old.Cart;
+import io.core9.commerce.cart.old.LineItem;
 
 import java.util.Map;
 

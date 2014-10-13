@@ -1,7 +1,8 @@
 package io.core9.commerce.checkout;
 
-import io.core9.commerce.cart.Cart;
-import io.core9.commerce.cart.LineItem;
+import io.core9.commerce.cart.old.Cart;
+import io.core9.commerce.cart.old.LineItem;
+import io.core9.commerce.checkout.old.Order;
 import io.core9.plugin.database.repository.AbstractCrudEntity;
 import io.core9.plugin.database.repository.Collection;
 import io.core9.plugin.database.repository.CrudEntity;
