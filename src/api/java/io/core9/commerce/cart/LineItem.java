@@ -1,4 +1,4 @@
-package io.core9.commerce.cart.old;
+package io.core9.commerce.cart;
 
 import java.io.Serializable;
 

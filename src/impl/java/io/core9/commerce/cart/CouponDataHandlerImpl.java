@@ -3,8 +3,8 @@ package io.core9.commerce.cart;
 import io.core9.commerce.CommerceDataHandlerConfig;
 import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.commerce.CommerceStepDataHandlerConfig;
-import io.core9.commerce.cart.old.Cart;
 import io.core9.plugin.server.request.Request;
+import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
 
@@ -38,10 +38,10 @@ public class CouponDataHandlerImpl implements CouponDataHandler {
 
 	@Override
 	public DataHandler<CommerceStepDataHandlerConfig> createDataHandler(DataHandlerFactoryConfig options) {
-		return new DataHandler<CommerceStepDataHandlerConfig>() {
+		return new ContextualDataHandler<CommerceStepDataHandlerConfig>() {
 			
 			@Override
-			public Map<String, Object> handle(Request req) {
+			public Map<String, Object> handle(Request req, Map<String,Object> context) {
 				Cart cart = helper.getCart(req);
 				return getCartAsMap(cart);
 			}

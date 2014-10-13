@@ -1,6 +1,6 @@
 package io.core9.commerce.cart.old;
 
-import io.core9.commerce.cart.old.Cart;
+import io.core9.commerce.cart.Cart;
 import io.core9.commerce.cart.old.CartDataHandler;
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;

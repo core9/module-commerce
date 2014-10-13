@@ -2,6 +2,7 @@ package io.core9.commerce;
 
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.widgets.Component;
+import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
 import io.core9.plugin.widgets.widget.Widget;
@@ -16,7 +17,6 @@ import net.xeoh.plugins.base.annotations.injections.InjectPlugin;
 @PluginImplementation
 public class CommerceDataHandlerImpl implements CommerceDataHandlerFactory {
 	
-	public static final String CONTEXT_BODY_PREFIX = "body";
 	public static final String CONTEXT_SEPARATOR   = ".";
 	
 	@InjectPlugin
@@ -56,6 +56,7 @@ public class CommerceDataHandlerImpl implements CommerceDataHandlerFactory {
 		};
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Map<String,Object> handleComponent(CommerceDataHandlerConfig config, Component component, Request req, Map<String, Object> form) {
 		Widget widget = widgets.getRegistry(req.getVirtualHost()).get(component.getId());
 		DataHandler<?> handler;
@@ -64,8 +65,11 @@ public class CommerceDataHandlerImpl implements CommerceDataHandlerFactory {
 			if(component.getGlobals().size() > 0) {
 				putGlobalValuesOnContext(config, component, req);
 			}
-			req.putContext(CONTEXT_BODY_PREFIX + CONTEXT_SEPARATOR + component.getName(), form.get(component.getName()));
-			return handler.handle(req);
+			if(handler instanceof ContextualDataHandler) {
+				return ((ContextualDataHandler<CommerceDataHandlerConfig>) handler).handle(req, (Map<String, Object>) form.get(component.getName()));
+			} else {
+				return handler.handle(req);
+			}
 		} else {
 			return new HashMap<String,Object>();
 		}
