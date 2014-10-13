@@ -1,6 +1,5 @@
 package io.core9.commerce.cart;
 
-import io.core9.commerce.CommerceDataHandlerConfig;
 import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.commerce.CommerceStepDataHandlerConfig;
 import io.core9.commerce.cart.old.Cart;
@@ -33,7 +32,7 @@ public class CartDataHandlerImpl implements CartDataHandler {
 
 	@Override
 	public Class<? extends DataHandlerFactoryConfig> getConfigClass() {
-		return CommerceDataHandlerConfig.class;
+		return CommerceStepDataHandlerConfig.class;
 	}
 
 	@Override
@@ -59,6 +58,5 @@ public class CartDataHandlerImpl implements CartDataHandler {
 		result.put("total", cart.getTotal());
 		return result;
 	}
-	
 
 }

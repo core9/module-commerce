@@ -7,6 +7,6 @@ import io.core9.plugin.widgets.datahandler.DataHandlerFactory;
  * @author mark
  *
  */
-public interface CommerceStepDataHandler<T extends CommerceStepDataHandlerConfig> extends DataHandlerFactory<T> {
+public interface CommerceStepDataHandlerFactory<T extends CommerceStepDataHandlerConfig> extends DataHandlerFactory<T> {
 	
 }

@@ -8,6 +8,6 @@ import io.core9.plugin.widgets.datahandler.DataHandlerFactory;
  * @author mark
  *
  */
-public interface CommerceDataHandler extends DataHandlerFactory<CommerceDataHandlerConfig>, Core9Plugin {
+public interface CommerceDataHandlerFactory extends DataHandlerFactory<CommerceDataHandlerConfig>, Core9Plugin {
 	
 }
