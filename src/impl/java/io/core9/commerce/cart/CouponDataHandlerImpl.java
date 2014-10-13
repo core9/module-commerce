@@ -28,7 +28,7 @@ public class CouponDataHandlerImpl implements CouponDataHandler {
 	
 	@Override
 	public String getName() {
-		return "Commerce-Cart";
+		return "Commerce-Coupon";
 	}
 
 	@Override
