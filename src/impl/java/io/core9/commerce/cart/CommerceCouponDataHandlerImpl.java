@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @PluginImplementation
-public class CommerceCartDataHandlerImpl implements CommerceCartDataHandler {
+public class CommerceCouponDataHandlerImpl implements CommerceCouponDataHandler {
 	
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 	

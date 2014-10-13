@@ -5,7 +5,7 @@ import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
 
 import java.util.List;
 
-public class CommerceDataHandlerConfig extends DataHandlerDefaultConfig {
+public class CommerceStepDataHandlerConfig extends DataHandlerDefaultConfig {
 
 	private List<Component> components;
 	private String nextStep;
