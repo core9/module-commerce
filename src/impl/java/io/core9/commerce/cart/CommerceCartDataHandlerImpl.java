@@ -1,9 +1,11 @@
-package io.core9.commerce.cart.old;
+package io.core9.commerce.cart;
 
-import io.core9.commerce.CommerceDataHandlerHelper;
+import io.core9.commerce.CommerceDataHandlerConfig;
+import io.core9.commerce.cart.old.Cart;
+import io.core9.module.auth.AuthenticationPlugin;
+import io.core9.module.auth.Session;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.widgets.datahandler.DataHandler;
-import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
 import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
 
 import java.util.HashMap;
@@ -17,30 +19,46 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @PluginImplementation
-public class CartDataHandlerImpl implements CartDataHandler {
+public class CommerceCartDataHandlerImpl implements CommerceCartDataHandler {
 	
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 	
 	@InjectPlugin
-	private CommerceDataHandlerHelper helper;
+	private AuthenticationPlugin auth;
+	
+	private String nextStep = "/checkout";
+
+	@Override
+	public void setNextStep(String nextStep) {
+		this.nextStep = nextStep;
+	}
+
+	@Override
+	public String getNextStep() {
+		return nextStep;
+	}
 
 	@Override
 	public String getName() {
-		return "Cart";
+		return "Commerce-Cart";
 	}
 
 	@Override
 	public Class<? extends DataHandlerFactoryConfig> getConfigClass() {
-		return DataHandlerDefaultConfig.class;
+		return CommerceDataHandlerConfig.class;
 	}
 
 	@Override
-	public DataHandler<DataHandlerDefaultConfig> createDataHandler(final DataHandlerFactoryConfig options) {
-		return new DataHandler<DataHandlerDefaultConfig>() {
+	public DataHandler<CommerceDataHandlerConfig> createDataHandler(DataHandlerFactoryConfig options) {
+		return new DataHandler<CommerceDataHandlerConfig>() {
 
 			@Override
 			public Map<String, Object> handle(Request req) {
-				Cart cart = helper.getCart(req);
+				Session session = auth.getUser(req).getSession();
+				Cart cart = (Cart) session.getAttribute("cart");
+				if(cart == null) {
+					cart = new Cart();
+				}
 				Map<String,Object> result = new HashMap<String,Object>();
 				result.put("items", MAPPER.convertValue(cart.getItems().values(), new TypeReference<List<Object>>(){}));
 				result.put("total", cart.getTotal());
@@ -48,10 +66,11 @@ public class CartDataHandlerImpl implements CartDataHandler {
 			}
 
 			@Override
-			public DataHandlerDefaultConfig getOptions() {
-				return (DataHandlerDefaultConfig) options;
+			public CommerceDataHandlerConfig getOptions() {
+				return (CommerceDataHandlerConfig) options;
 			}
 		};
 	}
+	
 
 }
