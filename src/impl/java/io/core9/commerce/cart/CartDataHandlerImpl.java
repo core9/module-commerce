@@ -51,7 +51,10 @@ public class CartDataHandlerImpl implements CartDataHandler {
 			@Override
 			public Map<String, Object> handle(Request req, Map<String, Object> context) {
 				Cart cart = helper.getCart(req);
-				handleCartCall(req, cart, context);
+				if(context != null && (context.get("handled") == null || (Boolean) context.get("handled") == false)) {
+					handleCartCall(req, cart, context);
+					context.put("handled", true);
+				}
 				return getCartAsMap(cart);
 			}
 		};
