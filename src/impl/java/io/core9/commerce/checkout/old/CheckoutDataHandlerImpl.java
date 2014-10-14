@@ -1,6 +1,7 @@
 package io.core9.commerce.checkout.old;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.commerce.checkout.OrderImpl;
 import io.core9.commerce.checkout.old.CheckoutDataHandler;
 import io.core9.commerce.checkout.old.CheckoutDataHandlerConfig;
 import io.core9.commerce.checkout.old.CheckoutProcessor;

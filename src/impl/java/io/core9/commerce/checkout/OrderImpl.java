@@ -1,17 +1,15 @@
-package io.core9.commerce.checkout.old;
+package io.core9.commerce.checkout;
 
 import io.core9.commerce.cart.Cart;
 import io.core9.commerce.cart.LineItem;
-import io.core9.commerce.checkout.old.Order;
 import io.core9.plugin.database.repository.AbstractCrudEntity;
 import io.core9.plugin.database.repository.Collection;
 import io.core9.plugin.database.repository.CrudEntity;
 
-import java.io.Serializable;
 import java.util.Map;
 
 @Collection("core.orders")
-public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order, Serializable {
+public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 
 	private static final long serialVersionUID = -7647420231452397432L;
 	
@@ -42,42 +40,52 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order, 
 		this._id = id;
 	}
 	
+	@Override
 	public String getMessage() {
 		return message;
 	}
 
+	@Override
 	public void setMessage(String message) {
 		this.message = message;
 	}
 
+	@Override
 	public String getStatus() {
 		return status;
 	}
 
+	@Override
 	public void setStatus(String status) {
 		this.status = status;
 	}
 
+	@Override
 	public Address getBilling() {
 		return billing;
 	}
 
+	@Override
 	public void setBilling(Address billing) {
 		this.billing = billing;
 	}
 
+	@Override
 	public Address getShipping() {
 		return shipping;
 	}
 
+	@Override
 	public void setShipping(Address shipping) {
 		this.shipping = shipping;
 	}
 
+	@Override
 	public String getPaymentmethod() {
 		return paymentmethod;
 	}
 
+	@Override
 	public void setPaymentmethod(String paymentmethod) {
 		this.paymentmethod = paymentmethod;
 	}

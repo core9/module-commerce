@@ -1,5 +1,6 @@
 package io.core9.commerce.checkout.old;
 
+import io.core9.commerce.checkout.OrderImpl;
 import io.core9.commerce.checkout.old.FeedbackDataHandler;
 import io.core9.commerce.checkout.old.FeedbackDataHandlerConfig;
 import io.core9.commerce.payment.old.PaymentMethod;

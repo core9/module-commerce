@@ -10,7 +10,7 @@ import io.core9.plugin.database.repository.CrudEntity;
 @Collection("configuration")
 public class PaymentMethod extends AbstractCrudEntity implements CrudEntity {
 	
-	private static final Map<String,Object> DEFAULT_QUERY = new HashMap<String, Object>();
+	public static final Map<String,Object> DEFAULT_QUERY = new HashMap<String, Object>();
 	
 	static {
 		DEFAULT_QUERY.put("configtype", "paymentmethod");

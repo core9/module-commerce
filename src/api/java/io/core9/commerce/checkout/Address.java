@@ -1,4 +1,4 @@
-package io.core9.commerce.checkout.old;
+package io.core9.commerce.checkout;
 
 import java.io.Serializable;
 

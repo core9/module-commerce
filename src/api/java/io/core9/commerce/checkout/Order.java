@@ -1,11 +1,12 @@
-package io.core9.commerce.checkout.old;
+package io.core9.commerce.checkout;
 
 import io.core9.commerce.cart.Cart;
 import io.core9.commerce.cart.LineItem;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public interface Order {
+public interface Order extends Serializable {
 	
 	/**
 	 * Return the Order ID
@@ -108,4 +109,16 @@ public interface Order {
 	 * @return
 	 */
 	String getMessage();
+
+	Address getShipping();
+
+	void setShipping(Address shipping);
+
+	String getPaymentmethod();
+
+	void setPaymentmethod(String paymentmethod);
+
+	Address getBilling();
+
+	void setBilling(Address billing);
 }
