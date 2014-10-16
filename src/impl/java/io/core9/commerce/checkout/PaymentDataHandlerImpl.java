@@ -2,8 +2,10 @@ package io.core9.commerce.checkout;
 
 import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.plugin.database.repository.CrudRepository;
+import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.database.repository.NoCollectionNamePresentException;
 import io.core9.plugin.database.repository.RepositoryFactory;
+import io.core9.plugin.server.VirtualHost;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
@@ -51,15 +53,18 @@ public class PaymentDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 
 			@Override
 			public Map<String, Object> handle(Request req) {
+				VirtualHost vhost = req.getVirtualHost();
 				Order order = helper.getOrder(req);
-				DataHandler<?> handler = getPaymentDataHandler(req, order);
+				PaymentMethod method = getPaymentMethod(vhost, order);
+				
 				Map<String, Object> result = new HashMap<String, Object>(2);
-				result.put("payment", order.getPaymentmethod());
+				result.put("payment", DataUtils.toMap(method));
+				DataHandler<?> handler = getPaymentDataHandler(vhost, method);
 				if(handler != null) {
 					Map<String,Object> paymentData = handler.handle(req);
 					order.setPaymentData(paymentData);
 					helper.saveOrder(req, order);
-					result.put("paymentData", handler.handle(req));
+					result.put("paymentData", paymentData);
 				} else {
 					result.put("paymentData", new HashMap<String, Object>(0));
 				}
@@ -74,19 +79,25 @@ public class PaymentDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 		};
 	}
 	
-	private DataHandler<?> getPaymentDataHandler(Request req, Order order) {
-		Map<String, Object> query = new HashMap<String, Object>();
-		query.put("name", order.getPaymentmethod());
-		List<PaymentMethod> foundMethods = methods.query(req.getVirtualHost(), query);
-		if(foundMethods.size() == 1) {
-			Widget widget = widgets.getRegistry(req.getVirtualHost()).get(foundMethods.get(0).getWidget());
-			if(widget == null) {
-				return null;
-			}
-			return widget.getDataHandler();
-		} else {
+	private DataHandler<?> getPaymentDataHandler(VirtualHost vhost, PaymentMethod method) {
+		if(method == null) {
 			return null;
 		}
+		Widget widget = widgets.getRegistry(vhost).get(method.getWidget());
+		if(widget == null) {
+			return null;
+		}
+		return widget.getDataHandler();
+	}
+	
+	private PaymentMethod getPaymentMethod(VirtualHost vhost, Order order) {
+		Map<String, Object> query = new HashMap<String, Object>();
+		query.put("name", order.getPaymentmethod());
+		List<PaymentMethod> foundMethods = methods.query(vhost, query);
+		if(foundMethods.size() == 1) {
+			return foundMethods.get(0);
+		}
+		return null;
 	}
 
 }
