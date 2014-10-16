@@ -1,11 +1,11 @@
 package io.core9.commerce.cart;
 
 import io.core9.commerce.CommerceDataHandlerHelper;
-import io.core9.commerce.CommerceStepDataHandlerConfig;
 import io.core9.commerce.cart.old.CommerceEncryptionPlugin;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
+import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
 import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
 
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @PluginImplementation
-public class CartDataHandlerImpl implements CartDataHandler {
+public class CartDataHandlerImpl<T extends DataHandlerDefaultConfig> implements CartDataHandler<T> {
 	
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 	
@@ -36,16 +36,17 @@ public class CartDataHandlerImpl implements CartDataHandler {
 
 	@Override
 	public Class<? extends DataHandlerFactoryConfig> getConfigClass() {
-		return CommerceStepDataHandlerConfig.class;
+		return DataHandlerDefaultConfig.class;
 	}
 
 	@Override
-	public DataHandler<CommerceStepDataHandlerConfig> createDataHandler(DataHandlerFactoryConfig options) {
-		return new ContextualDataHandler<CommerceStepDataHandlerConfig>() {
+	public DataHandler<T> createDataHandler(DataHandlerFactoryConfig options) {
+		return new ContextualDataHandler<T>() {
 			
+			@SuppressWarnings("unchecked")
 			@Override
-			public CommerceStepDataHandlerConfig getOptions() {
-				return (CommerceStepDataHandlerConfig) options;
+			public T getOptions() {
+				return (T) options;
 			}
 
 			@Override
@@ -96,12 +97,6 @@ public class CartDataHandlerImpl implements CartDataHandler {
 			return;
 		}
 		helper.saveCart(request, cart);
-		// TODO: Handle redirect
-//		if(requestBody.get("redirect") != null) {
-//			request.getResponse().sendRedirect(301, (String) requestBody.get("redirect"));
-//		} else {
-//			request.getResponse().sendJsonArray(new ArrayList<LineItem>(cart.getItems().values()));
-//		}
 	}
 	
 	public void deleteItemFromCart(Cart cart, Map<String, Object> context) {

@@ -2,10 +2,10 @@ package io.core9.commerce.cart;
 
 import io.core9.commerce.CommerceDataHandlerConfig;
 import io.core9.commerce.CommerceDataHandlerHelper;
-import io.core9.commerce.CommerceStepDataHandlerConfig;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
+import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
 import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
 
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @PluginImplementation
-public class CouponDataHandlerImpl implements CouponDataHandler {
+public class CouponDataHandlerImpl<T extends DataHandlerDefaultConfig> implements CouponDataHandler<T> {
 	
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 	
@@ -37,8 +37,8 @@ public class CouponDataHandlerImpl implements CouponDataHandler {
 	}
 
 	@Override
-	public DataHandler<CommerceStepDataHandlerConfig> createDataHandler(DataHandlerFactoryConfig options) {
-		return new ContextualDataHandler<CommerceStepDataHandlerConfig>() {
+	public DataHandler<T> createDataHandler(DataHandlerFactoryConfig options) {
+		return new ContextualDataHandler<T>() {
 			
 			@Override
 			public Map<String, Object> handle(Request req, Map<String,Object> context) {
@@ -46,9 +46,10 @@ public class CouponDataHandlerImpl implements CouponDataHandler {
 				return getCartAsMap(cart);
 			}
 
+			@SuppressWarnings("unchecked")
 			@Override
-			public CommerceStepDataHandlerConfig getOptions() {
-				return (CommerceStepDataHandlerConfig) options;
+			public T getOptions() {
+				return (T) options;
 			}
 		};
 	}

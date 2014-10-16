@@ -1,28 +1,10 @@
 package io.core9.commerce;
 
-import io.core9.plugin.widgets.Component;
-import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
+import io.core9.plugin.widgets.datahandler.factories.BundleDataHandlerFactoryOptions;
 
-import java.util.List;
+public class CommerceDataHandlerConfig extends BundleDataHandlerFactoryOptions {
 
-public class CommerceDataHandlerConfig extends DataHandlerDefaultConfig {
-
-	private List<Component> components;
 	private String nextStep;
-		
-	/**
-	 * @return the components
-	 */
-	public List<Component> getComponents() {
-		return components;
-	}
-
-	/**
-	 * @param components the components to set
-	 */
-	public void setComponents(List<Component> components) {
-		this.components = components;
-	}
 
 	public String getNextStep() {
 		return nextStep;

@@ -1,9 +1,9 @@
 package io.core9.commerce.checkout;
 
-import io.core9.commerce.CommerceStepDataHandlerFactory;
-import io.core9.commerce.CommerceStepDataHandlerConfig;
 import io.core9.core.plugin.Core9Plugin;
+import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
+import io.core9.plugin.widgets.datahandler.DataHandlerFactory;
 
-public interface PaymentMethodDataHandler extends CommerceStepDataHandlerFactory<CommerceStepDataHandlerConfig>, Core9Plugin {
+public interface PaymentMethodDataHandler<T extends DataHandlerDefaultConfig> extends DataHandlerFactory<T>, Core9Plugin {
 
 }
