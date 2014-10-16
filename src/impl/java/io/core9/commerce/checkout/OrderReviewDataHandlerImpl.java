@@ -1,25 +1,27 @@
 package io.core9.commerce.checkout;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import io.core9.commerce.CommerceDataHandlerHelper;
+import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
 import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import net.xeoh.plugins.base.annotations.injections.InjectPlugin;
 
 @PluginImplementation
-public class StatusDataHandlerImpl<T extends DataHandlerDefaultConfig> implements StatusDataHandler<T> {
+public class OrderReviewDataHandlerImpl<T extends DataHandlerDefaultConfig> implements OrderReviewDataHandler<T> {
 	
 	@InjectPlugin
 	private CommerceDataHandlerHelper helper;
 
 	@Override
 	public String getName() {
-		return "Commerce-Status";
+		return "Commerce-OrderReview";
 	}
 
 	@Override
@@ -36,8 +38,7 @@ public class StatusDataHandlerImpl<T extends DataHandlerDefaultConfig> implement
 				Map<String,Object> result = new HashMap<String, Object>(2);
 				Order order = helper.getOrder(req);
 				if(order != null) {
-					result.put("status", order.getStatus());
-					result.put("message", order.getMessage());
+					result.put("order", DataUtils.toMap(order));
 				}
 				return result;
 			}

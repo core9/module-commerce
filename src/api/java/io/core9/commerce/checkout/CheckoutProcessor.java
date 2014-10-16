@@ -1,7 +1,6 @@
-package io.core9.commerce.checkout.old;
+package io.core9.commerce.checkout;
 
-import io.core9.commerce.checkout.Order;
-
+@Deprecated
 public interface CheckoutProcessor {
 
 	void process(Order order);

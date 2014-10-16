@@ -1,11 +1,11 @@
 package io.core9.commerce.checkout.old;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.commerce.checkout.CheckoutProcessor;
 import io.core9.commerce.checkout.OrderImpl;
+import io.core9.commerce.checkout.PaymentMethod;
 import io.core9.commerce.checkout.old.CheckoutDataHandler;
 import io.core9.commerce.checkout.old.CheckoutDataHandlerConfig;
-import io.core9.commerce.checkout.old.CheckoutProcessor;
-import io.core9.commerce.payment.old.PaymentMethod;
 import io.core9.core.boot.CoreBootStrategy;
 import io.core9.mail.MailerPlugin;
 import io.core9.mail.MailerProfile;

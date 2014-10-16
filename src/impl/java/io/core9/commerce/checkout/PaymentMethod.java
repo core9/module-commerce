@@ -1,4 +1,4 @@
-package io.core9.commerce.payment.old;
+package io.core9.commerce.checkout;
 
 import java.util.HashMap;
 import java.util.Map;

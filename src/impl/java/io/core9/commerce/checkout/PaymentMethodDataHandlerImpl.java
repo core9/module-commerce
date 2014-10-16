@@ -1,7 +1,6 @@
 package io.core9.commerce.checkout;
 
 import io.core9.commerce.CommerceDataHandlerHelper;
-import io.core9.commerce.payment.old.PaymentMethod;
 import io.core9.plugin.database.Database;
 import io.core9.plugin.server.VirtualHost;
 import io.core9.plugin.server.request.Request;

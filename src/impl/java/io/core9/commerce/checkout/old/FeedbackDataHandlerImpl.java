@@ -1,9 +1,9 @@
 package io.core9.commerce.checkout.old;
 
 import io.core9.commerce.checkout.OrderImpl;
+import io.core9.commerce.checkout.PaymentMethod;
 import io.core9.commerce.checkout.old.FeedbackDataHandler;
 import io.core9.commerce.checkout.old.FeedbackDataHandlerConfig;
-import io.core9.commerce.payment.old.PaymentMethod;
 import io.core9.module.auth.AuthenticationPlugin;
 import io.core9.module.auth.Session;
 import io.core9.plugin.database.repository.CrudRepository;
