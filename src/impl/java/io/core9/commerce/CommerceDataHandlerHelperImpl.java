@@ -51,7 +51,7 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 		Session session = auth.getUser(req).getSession();
 		OrderImpl order = (OrderImpl) session.getAttribute("order");
 		if(order == null) {
-			createOrder(req);
+			order = (OrderImpl) createOrder(req);
 		} else {
 			order.setCart(getCart(req));
 		}

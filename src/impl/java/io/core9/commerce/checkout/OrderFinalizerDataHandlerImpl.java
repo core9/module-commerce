@@ -58,7 +58,7 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 				Map<String,Object> result = new HashMap<String, Object>(2);
 				Order order = helper.getOrder(req);
 				switch (order.getStatus()) {
-				case "initalized":
+				case "initialized":
 				case "paid":
 					helper.finalizeOrder(req, order);
 					mail(config, req, order);
