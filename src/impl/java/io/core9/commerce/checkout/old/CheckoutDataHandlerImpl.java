@@ -45,6 +45,7 @@ import org.apache.log4j.Logger;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@Deprecated
 @PluginImplementation
 public class CheckoutDataHandlerImpl extends CoreBootStrategy implements CheckoutDataHandler {
 	

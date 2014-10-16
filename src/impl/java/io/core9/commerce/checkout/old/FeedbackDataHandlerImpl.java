@@ -35,6 +35,7 @@ import net.xeoh.plugins.base.annotations.injections.InjectPlugin;
  * @author mark
  *
  */
+@Deprecated
 @PluginImplementation
 public class FeedbackDataHandlerImpl implements FeedbackDataHandler {
 	
