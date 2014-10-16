@@ -1,7 +1,5 @@
-package io.core9.commerce.cart.old;
+package io.core9.commerce.cart;
 
-import io.core9.commerce.cart.old.CommerceEncryptionPlugin;
-import io.core9.plugin.importer.ImporterPlugin;
 import io.core9.plugin.server.request.Request;
 
 import java.security.MessageDigest;
@@ -11,15 +9,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import net.xeoh.plugins.base.annotations.events.PluginLoaded;
 
 @PluginImplementation
 public class CommerceEncryptionPluginImpl implements CommerceEncryptionPlugin {
-	
-	@PluginLoaded
-	public void onImportPluginAvailable(ImporterPlugin importer) {
-		importer.registerProcessor(new EncryptionProcessor(this));
-	}
 	
 	@Override
 	public String getControllerName() {

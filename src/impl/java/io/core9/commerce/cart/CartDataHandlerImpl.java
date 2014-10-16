@@ -1,7 +1,6 @@
 package io.core9.commerce.cart;
 
 import io.core9.commerce.CommerceDataHandlerHelper;
-import io.core9.commerce.cart.old.CommerceEncryptionPlugin;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
