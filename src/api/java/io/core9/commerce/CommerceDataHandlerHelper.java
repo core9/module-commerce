@@ -16,4 +16,6 @@ public interface CommerceDataHandlerHelper extends Core9Plugin {
 	Order saveOrder(Request req, Order order);
 	
 	Order createOrder(Request req);
+
+	Order finalizeOrder(Request req, Order order);
 }

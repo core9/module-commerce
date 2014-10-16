@@ -68,4 +68,14 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 		return saveOrder(req, order);
 	}
 
+	@Override
+	public Order finalizeOrder(Request req, Order order) {
+		order.setFinalized(true);
+		saveOrder(req, order);
+		Session session = auth.getUser(req).getSession();
+		session.removeAttribute(SESSION_CART_KEY);
+		session.removeAttribute(SESSION_ORDER_KEY);
+		return null;
+	}
+
 }
