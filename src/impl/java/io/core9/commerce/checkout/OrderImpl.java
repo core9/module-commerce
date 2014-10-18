@@ -1,7 +1,7 @@
 package io.core9.commerce.checkout;
 
 import io.core9.commerce.cart.Cart;
-import io.core9.commerce.cart.LineItem;
+import io.core9.commerce.cart.lineitem.StandardLineItem;
 import io.core9.plugin.database.repository.AbstractCrudEntity;
 import io.core9.plugin.database.repository.Collection;
 import io.core9.plugin.database.repository.CrudEntity;
@@ -19,7 +19,7 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	private String paymentmethod;
 	private Map<String,Object> paymentData;
 	private Cart cart;
-	private LineItem shippingCost;
+	private StandardLineItem shippingCost;
 	private boolean finalized;
 	private String remark;
 	private String status;
@@ -101,12 +101,12 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	}
 
 	@Override
-	public LineItem getShippingCost() {
+	public StandardLineItem getShippingCost() {
 		return shippingCost;
 	}
 
 	@Override
-	public void setShippingCost(LineItem shippingCost) {
+	public void setShippingCost(StandardLineItem shippingCost) {
 		this.shippingCost = shippingCost;
 	}
 

@@ -1,7 +1,7 @@
 package io.core9.commerce.checkout;
 
 import io.core9.commerce.cart.Cart;
-import io.core9.commerce.cart.LineItem;
+import io.core9.commerce.cart.lineitem.StandardLineItem;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -60,13 +60,13 @@ public interface Order extends Serializable {
 	 * Get the shipping costs for an order
 	 * @return
 	 */
-	LineItem getShippingCost();
+	StandardLineItem getShippingCost();
 	
 	/**
 	 * Set the shipping costs for an order
 	 * @return
 	 */
-	void setShippingCost(LineItem shippingCost);
+	void setShippingCost(StandardLineItem shippingCost);
 	
 	/**
 	 * Get the order total

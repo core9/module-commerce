@@ -1,5 +1,8 @@
 package io.core9.commerce.cart;
 
+import io.core9.commerce.cart.lineitem.LineItem;
+import io.core9.commerce.cart.lineitem.StandardLineItem;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +16,7 @@ public class Cart implements Serializable {
 	Map<String, LineItem> items = new HashMap<String, LineItem>();
 
 	public void addItem(String id, int quantity, int price, String description, String image, String link) {
-		addItem(new LineItem(id, quantity, price, description, image, link));
+		addItem(new StandardLineItem(id, quantity, price, description, image, link));
 	}
 
 	public Map<String, LineItem> getItems() {
@@ -34,6 +37,15 @@ public class Cart implements Serializable {
 			total += (item.getPrice() * item.getQuantity());
 		}
 		return total;
+	}
+
+	public boolean validates() {
+		for(LineItem item : items.values()) {
+			if(!item.validates()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }
