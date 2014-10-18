@@ -66,6 +66,8 @@ public class PaymentDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 					Map<String,Object> paymentData = handler.handle(req);
 					result.put("paymentData", paymentData);
 				} else {
+					order.setStatus("initialized");
+					helper.saveOrder(req, order);
 					result.put("paymentData", new HashMap<String, Object>(0));
 				}
 				return result;
