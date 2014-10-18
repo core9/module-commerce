@@ -60,10 +60,20 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 				switch (order.getStatus()) {
 				case "initialized":
 				case "paid":
-					helper.finalizeOrder(req, order);
-					mail(config, req, order);
-					break;
+					//TODO: use something like (order.validate())
+					if(order.getCart() != null &&
+					   order.getBilling() != null &&
+					   order.getShipping() != null) {
+						helper.finalizeOrder(req, order);
+						mail(config, req, order);
+						break;
+					} else {
+						order.setStatus("BLOCK");
+						order.setMessage("Some of the cart/billing/shipping fields aren't entered correctly.");
+					}
 				default:
+					order.setStatus("BLOCK");
+					order.setMessage("Your order has the wrong status, you cannot finalize your order.");
 					LOG.error("Order " + order.getId() + " entered finalizing page without paid/initialized status");
 					break;
 				}
