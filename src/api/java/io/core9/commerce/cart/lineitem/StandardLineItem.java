@@ -4,6 +4,7 @@ package io.core9.commerce.cart.lineitem;
 public class StandardLineItem implements LineItem {
 
 	private static final long serialVersionUID = -3744618595117264970L;
+	private static final String LINE_ITEM_TYPE = "standard";
 
 	private String id;
 	private String producttype;
@@ -109,6 +110,11 @@ public class StandardLineItem implements LineItem {
 		this.quantity = item.getQuantity();
 		this.link = item.getLink();
 		this.producttype = item.getProducttype();
+	}
+
+	@Override
+	public String getType() {
+		return LINE_ITEM_TYPE;
 	}
 
 }

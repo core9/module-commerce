@@ -9,6 +9,8 @@ public interface LineItem extends Serializable {
 	void setId(String id);
 
 	String getProducttype();
+	
+	String getType();
 
 	void setProducttype(String producttype);
 
