@@ -95,14 +95,21 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 			MailerProfile profile = mailer.getProfile(req.getVirtualHost(), config.getMailerProfile());
 			MimeMessage message = (MimeMessage) mailer.create(profile);
 			message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(order.getBilling().getEmail()));
-			message.setFrom(new InternetAddress(config.getMailerFromAddress()));
-			message.setSubject(config.getMailerSubject());
+			message.setFrom(new InternetAddress(getOrDefault("from", config.getMailerFromAddress(), profile)));
+			message.setSubject(getOrDefault("subject", config.getMailerSubject(), profile));
 			message.setText(engine.render(req.getVirtualHost(), config.getMailerTemplate(), DataUtils.toMap(order)), "utf-8", "html");
 			mailer.send(profile, message);
 		} catch (MessagingException e) {
 			LOG.error("Error sending mail: " + e.getMessage());
 			e.printStackTrace();
 		}
+	}
+	
+	protected String getOrDefault(String type, String entered, MailerProfile profile) {
+		if(entered == null || entered.equals("")) {
+			return (String) profile.getDefaultSettings().get(type);
+		}
+		return entered;
 	}
 
 }
