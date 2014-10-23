@@ -59,9 +59,12 @@ public class CommerceDataHandlerImpl<T extends CommerceDataHandlerConfig> implem
 				Map<String,Object> result = bundleHandler.handle(req);
 				switch (req.getMethod()) {
 				case POST:
-					req.getResponse().sendRedirect(301, config.getNextStep());
+					if(req.getResponse().getGlobals().get("message") == null) {
+						req.getResponse().sendRedirect(301, config.getNextStep());
+					}
 					break;
 				default:
+					req.getResponse().getGlobals().remove("message");
 					break;
 				}
 				return result;

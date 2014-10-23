@@ -121,4 +121,6 @@ public interface Order extends Serializable {
 	Address getBilling();
 
 	void setBilling(Address billing);
+	
+	boolean validates();
 }

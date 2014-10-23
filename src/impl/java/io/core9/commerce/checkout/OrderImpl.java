@@ -148,4 +148,12 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 		this.remark = remark;
 	}
 
+	@Override
+	public boolean validates() {
+		if(billing.validates() == null && shipping.validates() == null) {
+			return cart.validates();
+		}
+		return false;
+	}
+
 }

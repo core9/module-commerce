@@ -38,10 +38,7 @@ public class ShippingDataHandlerImpl<T extends DataHandlerDefaultConfig> impleme
 			public Map<String, Object> handle(Request req, Map<String,Object> context) {
 				Order order = helper.getOrder(req);
 				Map<String,Object> result = new HashMap<String, Object>();
-				if(context != null && (context.get("handled") == null || (Boolean) context.get("handled") == false)) {
-					order = handleShipping(req, order, context);
-					context.put("handled", true);
-				}
+				order = handleShipping(req, order, context);
 				if(order != null) {
 					result.put("shipping", DataUtils.toMap(order.getShipping()));
 				}
@@ -57,11 +54,23 @@ public class ShippingDataHandlerImpl<T extends DataHandlerDefaultConfig> impleme
 	}
 
 	protected Order handleShipping(Request req, Order order, Map<String, Object> context) {
-		if(order == null) {
-			order = helper.createOrder(req);
+		if(context == null) {
+			if(order.getShipping() == null) {
+				req.getResponse().addGlobal("message", "You haven't selected any shipping details");
+			}
+			return order;
 		}
-		order.setShipping(DataUtils.toObject(context, Address.class));
+		if(context.get("handled") != null && (Boolean) context.get("handled")) {
+			return order;
+		}
+		Address shipping = DataUtils.toObject(context, Address.class);
+		String message = shipping.validates();
+		if(message != null) {
+			req.getResponse().addGlobal("message", message);
+		}
+		order.setShipping(shipping);
 		helper.saveOrder(req, order);
+		context.put("handled", true);
 		return order;
 	}
 }

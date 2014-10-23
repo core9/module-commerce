@@ -38,10 +38,7 @@ public class BillingDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 			public Map<String, Object> handle(Request req, Map<String,Object> context) {
 				Order order = helper.getOrder(req);
 				Map<String,Object> result = new HashMap<String, Object>();
-				if(context != null && (context.get("handled") == null || (Boolean) context.get("handled") == false)) {
-					order = handleBilling(req, order, context);
-					context.put("handled", true);
-				}
+				order = handleBilling(req, order, context);
 				if(order != null) {
 					result.put("billing", DataUtils.toMap(order.getBilling()));
 				}
@@ -57,11 +54,23 @@ public class BillingDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 	}
 
 	protected Order handleBilling(Request req, Order order, Map<String, Object> context) {
-		if(order == null) {
-			order = helper.createOrder(req);
+		if(context == null) {
+			if(order.getBilling() == null) {
+				req.getResponse().addGlobal("message", "You haven't selected any billing details");
+			}
+			return order;
+		}
+		if(context.get("handled") != null && (Boolean) context.get("handled")) {
+			return order;
+		}
+		Address billing = DataUtils.toObject(context, Address.class);
+		String message = billing.validates();
+		if(message != null) {
+			req.getResponse().addGlobal("message", message);
 		}
 		order.setBilling(DataUtils.toObject(context, Address.class));
 		helper.saveOrder(req, order);
+		context.put("handled", true);
 		return order;
 	}
 

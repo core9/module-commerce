@@ -63,7 +63,8 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 					//TODO: use something like (order.validate())
 					if(order.getCart() != null &&
 					   order.getBilling() != null &&
-					   order.getShipping() != null) {
+					   order.getShipping() != null &&
+					   order.getPaymentmethod() != null) {
 						helper.finalizeOrder(req, order);
 						mail(config, req, order);
 						break;
