@@ -41,7 +41,7 @@ public class Cart implements Serializable {
 
 	public boolean validates() {
 		for(LineItem item : items.values()) {
-			if(!item.validates()) {
+			if(!item.validates(this)) {
 				return false;
 			}
 		}

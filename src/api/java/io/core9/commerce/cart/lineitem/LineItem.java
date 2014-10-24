@@ -1,5 +1,7 @@
 package io.core9.commerce.cart.lineitem;
 
+import io.core9.commerce.cart.Cart;
+
 import java.io.Serializable;
 
 public interface LineItem extends Serializable {
@@ -34,5 +36,5 @@ public interface LineItem extends Serializable {
 
 	void setLink(String link);
 
-	boolean validates();
+	boolean validates(Cart cart);
 }

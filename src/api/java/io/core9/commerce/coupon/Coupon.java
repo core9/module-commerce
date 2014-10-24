@@ -1,27 +1,20 @@
-package io.core9.commerce.cart;
-
-import java.util.List;
+package io.core9.commerce.coupon;
 
 import io.core9.plugin.database.repository.AbstractCrudEntity;
 import io.core9.plugin.database.repository.Collection;
 import io.core9.plugin.database.repository.CrudEntity;
 
+import java.util.Map;
+
 @Collection("core.coupons")
 public class Coupon extends AbstractCrudEntity implements CrudEntity {
 
-	private List<String> applicableSkus;
 	private byte percentage;
 	private int amount;
 	private int redemptions;
 	private boolean active;
-
-	public List<String> getApplicableSkus() {
-		return applicableSkus;
-	}
-
-	public void setApplicableSkus(List<String> applicableSkus) {
-		this.applicableSkus = applicableSkus;
-	}
+	private String handler;
+	private Map<String,Object> handlerOptions;
 
 	public byte getPercentage() {
 		return percentage;
@@ -53,6 +46,22 @@ public class Coupon extends AbstractCrudEntity implements CrudEntity {
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+	public String getHandler() {
+		return handler;
+	}
+
+	public void setHandler(String handler) {
+		this.handler = handler;
+	}
+
+	public Map<String,Object> getHandlerOptions() {
+		return handlerOptions;
+	}
+
+	public void setHandlerOptions(Map<String,Object> handlerOptions) {
+		this.handlerOptions = handlerOptions;
 	}
 
 	public void decrement() {

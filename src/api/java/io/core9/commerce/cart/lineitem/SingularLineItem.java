@@ -1,5 +1,7 @@
 package io.core9.commerce.cart.lineitem;
 
+import io.core9.commerce.cart.Cart;
+
 public class SingularLineItem extends StandardLineItem {
 	
 	private static final long serialVersionUID = -2558721729361376972L;
@@ -14,8 +16,8 @@ public class SingularLineItem extends StandardLineItem {
 	}
 	
 	@Override
-	public boolean validates() {
-		if(super.validates()) {
+	public boolean validates(Cart cart) {
+		if(super.validates(cart)) {
 			this.setQuantity(1);
 			return true;
 		} else {

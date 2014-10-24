@@ -1,10 +1,8 @@
-package io.core9.commerce.cart;
+package io.core9.commerce.coupon;
 
 import io.core9.commerce.CommerceDataHandlerConfig;
 import io.core9.commerce.CommerceDataHandlerHelper;
-import io.core9.commerce.cart.lineitem.CouponLineItem;
-import io.core9.commerce.cart.lineitem.LineItem;
-import io.core9.commerce.cart.lineitem.LinkedLineItem;
+import io.core9.commerce.cart.Cart;
 import io.core9.plugin.database.repository.CrudRepository;
 import io.core9.plugin.database.repository.NoCollectionNamePresentException;
 import io.core9.plugin.database.repository.RepositoryFactory;
@@ -26,6 +24,8 @@ import net.xeoh.plugins.base.annotations.injections.InjectPlugin;
 
 @PluginImplementation
 public class CouponDataHandlerImpl<T extends DataHandlerDefaultConfig> implements CouponDataHandler<T> {
+	
+	private final Map<String, CouponHandler> COUPON_HANDLERS = new HashMap<String, CouponHandler>();
 	
 	@InjectPlugin
 	private CommerceDataHandlerHelper helper;
@@ -83,27 +83,40 @@ public class CouponDataHandlerImpl<T extends DataHandlerDefaultConfig> implement
 	}
 
 	public void applyCouponToCart(Request req, Cart cart, Coupon coupon) {
-		List<String> skus = coupon.getApplicableSkus();
-		for(String sku : skus) {
-			LineItem item;
-			if((item = cart.getItems().get(sku)) != null) {
-				if(coupon.getPercentage() > 0) {
-					item.setPrice(item.getPrice() * (1 - coupon.getPercentage()/100));
-				} else if(coupon.getAmount() > 0) {
-					LinkedLineItem linked;
-					if(item instanceof LinkedLineItem) {
-						linked = (LinkedLineItem) item;
-					} else {
-						linked = new LinkedLineItem(item, new ArrayList<String>());
-						cart.getItems().put(linked.getId(), linked);
-					}
-					linked.getLinkedLineItems().add(coupon.getId());
-					cart.getItems().put(coupon.getId(), new CouponLineItem(coupon.getId(), -1 * coupon.getAmount(), "Coupon", null, null));
-				}
-				coupon.decrement();
-				coupons.update(req.getVirtualHost(), coupon.getId(), coupon);
-			}
+		CouponHandler handler = COUPON_HANDLERS.get(coupon.getHandler());
+		if(handler == null) {
+			throw new UnsupportedOperationException("The Coupon handler " + coupon.getHandler() + "is not available.");
 		}
+		coupon = handler.handle(coupon, cart);
+		coupons.update(req.getVirtualHost(), coupon.getId(), coupon);
+		helper.saveCart(req, cart);
+//		List<String> skus = coupon.getApplicableSkus();
+//		for(String sku : skus) {
+//			LineItem item;
+//			if((item = cart.getItems().get(sku)) != null) {
+//				if(coupon.getPercentage() > 0) {
+//					item.setPrice(item.getPrice() * (1 - coupon.getPercentage()/100));
+//				} else if(coupon.getAmount() > 0) {
+//					LinkedLineItem linked;
+//					if(item instanceof LinkedLineItem) {
+//						linked = (LinkedLineItem) item;
+//					} else {
+//						linked = new LinkedLineItem(item, new ArrayList<String>());
+//						cart.getItems().put(linked.getId(), linked);
+//					}
+//					linked.getLinkedLineItems().add(coupon.getId());
+//					cart.getItems().put(coupon.getId(), new CouponLineItem(coupon.getId(), -1 * coupon.getAmount(), "Coupon", null, null) {
+//						@Override
+//						public boolean validates(Cart cart) {
+//							// Call handler logic
+//							return true;
+//						}
+//					});
+//				}
+//				coupon.decrement();
+//				coupons.update(req.getVirtualHost(), coupon.getId(), coupon);
+//			}
+//		}
 		helper.saveCart(req, cart);
 	}
 
@@ -134,6 +147,11 @@ public class CouponDataHandlerImpl<T extends DataHandlerDefaultConfig> implement
 		} else {
 			return new ArrayList<Coupon>();
 		}
+	}
+
+	@Override
+	public void addCouponHandler(String couponType, CouponHandler handler) {
+		COUPON_HANDLERS.put(couponType, handler);
 	}
 
 }

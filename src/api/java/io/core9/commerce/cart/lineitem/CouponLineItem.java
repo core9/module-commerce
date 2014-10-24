@@ -1,5 +1,7 @@
 package io.core9.commerce.cart.lineitem;
 
+import io.core9.commerce.cart.Cart;
+
 public class CouponLineItem extends SingularLineItem {
 	
 	private static final String LINE_ITEM_TYPE = "coupon";
@@ -17,6 +19,11 @@ public class CouponLineItem extends SingularLineItem {
 	
 	public CouponLineItem(String id, int price, String description, String image, String link) {
 		super(id, price, description, image, link);
+	}
+	
+	@Override
+	public boolean validates(Cart cart) {
+		return true;
 	}
 
 }

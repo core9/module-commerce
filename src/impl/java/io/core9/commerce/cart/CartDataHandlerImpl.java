@@ -4,6 +4,7 @@ import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.commerce.cart.lineitem.CouponLineItem;
 import io.core9.commerce.cart.lineitem.LineItem;
 import io.core9.commerce.cart.lineitem.LinkedLineItem;
+import io.core9.commerce.coupon.Coupon;
 import io.core9.plugin.database.repository.CrudRepository;
 import io.core9.plugin.database.repository.NoCollectionNamePresentException;
 import io.core9.plugin.database.repository.RepositoryFactory;
