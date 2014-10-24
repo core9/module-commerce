@@ -19,6 +19,7 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 	public static final String CONTEXT_PREFIX    = "cdhh.";
 	public static final String SESSION_CART_KEY  = "cart";
 	public static final String SESSION_ORDER_KEY = "order";
+	private static final long ONE_WEEK_MILLIS    = 2678400000l;
 	
 	@InjectPlugin
 	private AuthenticationPlugin auth;
@@ -49,6 +50,7 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 	public Cart saveCart(Request req, Cart cart) {
 		Session session = auth.getUser(req).getSession();
 		session.setAttribute(SESSION_CART_KEY, cart);
+		session.setTimeout(ONE_WEEK_MILLIS);
 		req.putContext(CONTEXT_PREFIX + SESSION_CART_KEY, cart);
 		return cart;
 	}
@@ -78,7 +80,7 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 	public Order saveOrder(Request req, Order order) {
 		Session session = auth.getUser(req).getSession();
 		session.setAttribute(SESSION_ORDER_KEY, order);
-		session.setTimeout(2678400000l); //Timeout to one week
+		session.setTimeout(ONE_WEEK_MILLIS); //Timeout to one week
 		req.putContext(CONTEXT_PREFIX + SESSION_ORDER_KEY, order);
 		return orderRepository.upsert(req.getVirtualHost(), (OrderImpl) order);
 	}
