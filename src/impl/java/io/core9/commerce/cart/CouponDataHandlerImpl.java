@@ -75,6 +75,7 @@ public class CouponDataHandlerImpl<T extends DataHandlerDefaultConfig> implement
 		String code = (String) context.get("code");
 		Coupon coupon;
 		if(context.get("code") == null || (coupon = coupons.read(req.getVirtualHost(), code)) == null) {
+			req.getResponse().addGlobal("message", "This is an unknown coupon value");
 			return;
 		} else {
 			applyCouponToCart(req, cart, coupon);

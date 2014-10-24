@@ -78,6 +78,7 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 	public Order saveOrder(Request req, Order order) {
 		Session session = auth.getUser(req).getSession();
 		session.setAttribute(SESSION_ORDER_KEY, order);
+		session.setTimeout(2678400000l); //Timeout to one week
 		req.putContext(CONTEXT_PREFIX + SESSION_ORDER_KEY, order);
 		return orderRepository.upsert(req.getVirtualHost(), (OrderImpl) order);
 	}
