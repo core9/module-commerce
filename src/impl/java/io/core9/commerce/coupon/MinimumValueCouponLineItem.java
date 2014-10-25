@@ -26,7 +26,7 @@ public class MinimumValueCouponLineItem extends CouponLineItem {
 		if(this.getPrice() == 0) {
 			total += initialPrice;
 		}
-		if(total > minimumvalue) {
+		if(total >= minimumvalue) {
 			this.setPrice(initialPrice);
 			this.setDescription(description);
 		} else {
