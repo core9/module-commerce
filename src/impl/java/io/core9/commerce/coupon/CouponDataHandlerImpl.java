@@ -57,6 +57,7 @@ public class CouponDataHandlerImpl<T extends DataHandlerDefaultConfig> implement
 				Cart cart = helper.getCart(req);
 				handleCouponCall(req, cart, context);
 				result.put("available", couponsAreApplicable(req, cart));
+				result.put("activated", cartContainsCoupon(cart));
 				return result;
 			}
 
