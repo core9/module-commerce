@@ -3,7 +3,6 @@ package io.core9.commerce.checkout;
 import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.server.request.Request;
-import io.core9.plugin.server.request.RequestUtils;
 import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
@@ -60,9 +59,6 @@ public class ShippingDataHandlerImpl<T extends DataHandlerDefaultConfig> impleme
 
 	protected Order handleShipping(Request req, Order order, Map<String, Object> context) {
 		if(context == null) {
-			if(order.getShipping() == null) {
-				RequestUtils.addMessage(req, "You haven't selected any shipping details");
-			}
 			return order;
 		}
 		if(context.get("handled") != null && (Boolean) context.get("handled")) {

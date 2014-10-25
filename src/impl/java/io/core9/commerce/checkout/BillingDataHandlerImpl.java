@@ -3,7 +3,6 @@ package io.core9.commerce.checkout;
 import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.server.request.Request;
-import io.core9.plugin.server.request.RequestUtils;
 import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
@@ -60,9 +59,6 @@ public class BillingDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 
 	protected Order handleBilling(Request req, Order order, Map<String, Object> context) {
 		if(context == null) {
-			if(order.getBilling() == null) {
-				RequestUtils.addMessage(req, "You haven't selected any billing details");
-			}
 			return order;
 		}
 		if(context.get("handled") != null && (Boolean) context.get("handled")) {

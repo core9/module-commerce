@@ -67,9 +67,6 @@ public class PaymentMethodDataHandlerImpl<T extends DataHandlerDefaultConfig> im
 
 	protected Order handlePaymentSelection(Request req, Order order, Map<String, Object> context, List<Map<String, Object>> methods) {
 		if(context == null) {
-			if(order.getPaymentmethod() == null) {
-				RequestUtils.addMessage(req, "You haven't selected any payment method details");
-			}
 			return order;
 		}
 		if(context.get("handled") != null && (Boolean) context.get("handled")) {
