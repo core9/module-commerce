@@ -3,6 +3,7 @@ package io.core9.commerce.checkout;
 import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.server.request.Request;
+import io.core9.plugin.server.request.RequestUtils;
 import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
@@ -40,7 +41,11 @@ public class BillingDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 				Map<String,Object> result = new HashMap<String, Object>();
 				order = handleBilling(req, order, context);
 				if(order != null) {
-					result.put("billing", DataUtils.toMap(order.getBilling()));
+					if(order.getBilling() != null) {
+						result.put("billing", DataUtils.toMap(order.getBilling()));
+					} else {
+						result.put("billing", context);
+					}
 				}
 				return result;
 			}
@@ -56,7 +61,7 @@ public class BillingDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 	protected Order handleBilling(Request req, Order order, Map<String, Object> context) {
 		if(context == null) {
 			if(order.getBilling() == null) {
-				req.getResponse().addGlobal("message", "You haven't selected any billing details");
+				RequestUtils.addMessage(req, "You haven't selected any billing details");
 			}
 			return order;
 		}
@@ -64,11 +69,9 @@ public class BillingDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 			return order;
 		}
 		Address billing = DataUtils.toObject(context, Address.class);
-		String message = billing.validates();
-		if(message != null) {
-			req.getResponse().addGlobal("message", message);
+		if(billing.validates(req)) {
+			order.setBilling(DataUtils.toObject(context, Address.class));
 		}
-		order.setBilling(DataUtils.toObject(context, Address.class));
 		helper.saveOrder(req, order);
 		context.put("handled", true);
 		return order;

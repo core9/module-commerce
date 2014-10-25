@@ -3,6 +3,7 @@ package io.core9.commerce.checkout;
 import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.plugin.database.repository.DataUtils;
 import io.core9.plugin.server.request.Request;
+import io.core9.plugin.server.request.RequestUtils;
 import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
@@ -40,7 +41,11 @@ public class ShippingDataHandlerImpl<T extends DataHandlerDefaultConfig> impleme
 				Map<String,Object> result = new HashMap<String, Object>();
 				order = handleShipping(req, order, context);
 				if(order != null) {
-					result.put("shipping", DataUtils.toMap(order.getShipping()));
+					if(order.getShipping() != null) {
+						result.put("shipping", DataUtils.toMap(order.getShipping()));
+					} else {
+						result.put("shipping", context);
+					}
 				}
 				return result;
 			}
@@ -56,7 +61,7 @@ public class ShippingDataHandlerImpl<T extends DataHandlerDefaultConfig> impleme
 	protected Order handleShipping(Request req, Order order, Map<String, Object> context) {
 		if(context == null) {
 			if(order.getShipping() == null) {
-				req.getResponse().addGlobal("message", "You haven't selected any shipping details");
+				RequestUtils.addMessage(req, "You haven't selected any shipping details");
 			}
 			return order;
 		}
@@ -64,11 +69,9 @@ public class ShippingDataHandlerImpl<T extends DataHandlerDefaultConfig> impleme
 			return order;
 		}
 		Address shipping = DataUtils.toObject(context, Address.class);
-		String message = shipping.validates();
-		if(message != null) {
-			req.getResponse().addGlobal("message", message);
+		if(shipping.validates(req)) {
+			order.setShipping(shipping);
 		}
-		order.setShipping(shipping);
 		helper.saveOrder(req, order);
 		context.put("handled", true);
 		return order;

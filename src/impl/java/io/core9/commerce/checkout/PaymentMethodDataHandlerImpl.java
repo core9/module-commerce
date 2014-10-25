@@ -4,6 +4,7 @@ import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.plugin.database.Database;
 import io.core9.plugin.server.VirtualHost;
 import io.core9.plugin.server.request.Request;
+import io.core9.plugin.server.request.RequestUtils;
 import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
@@ -67,7 +68,7 @@ public class PaymentMethodDataHandlerImpl<T extends DataHandlerDefaultConfig> im
 	protected Order handlePaymentSelection(Request req, Order order, Map<String, Object> context, List<Map<String, Object>> methods) {
 		if(context == null) {
 			if(order.getPaymentmethod() == null) {
-				req.getResponse().addGlobal("message", "You haven't selected any payment method details");
+				RequestUtils.addMessage(req, "You haven't selected any payment method details");
 			}
 			return order;
 		}
@@ -76,7 +77,7 @@ public class PaymentMethodDataHandlerImpl<T extends DataHandlerDefaultConfig> im
 		}
 		String paymentmethod = (String) context.get("paymentmethod");
 		if(paymentmethod == null) {
-			req.getResponse().addGlobal("message", "Please select a payment method");
+			RequestUtils.addMessage(req, "Please select a payment method");
 		} else {
 			boolean found = false;
 			for(Map<String,Object> method : methods) {
@@ -88,7 +89,7 @@ public class PaymentMethodDataHandlerImpl<T extends DataHandlerDefaultConfig> im
 			if(found) {
 				order.setPaymentmethod(paymentmethod);
 			} else {
-				req.getResponse().addGlobal("message", "You selected an unknown payment method, please select an existing method");
+				RequestUtils.addMessage(req, "You selected an unknown payment method, please select an existing method");
 			}
 		}
 		context.put("handled", true);

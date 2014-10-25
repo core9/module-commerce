@@ -1,6 +1,7 @@
 package io.core9.commerce.cart.lineitem;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.plugin.server.request.Request;
 
 
 public class StandardLineItem implements LineItem {
@@ -91,7 +92,7 @@ public class StandardLineItem implements LineItem {
 	}
 	
 	@Override
-	public boolean validates(Cart cart) {
+	public boolean validates(Request req, Cart cart) {
 		return true;
 	}
 

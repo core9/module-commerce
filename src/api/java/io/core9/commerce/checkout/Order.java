@@ -2,6 +2,7 @@ package io.core9.commerce.checkout;
 
 import io.core9.commerce.cart.Cart;
 import io.core9.commerce.cart.lineitem.StandardLineItem;
+import io.core9.plugin.server.request.Request;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -122,5 +123,5 @@ public interface Order extends Serializable {
 
 	void setBilling(Address billing);
 	
-	boolean validates();
+	boolean validates(Request req);
 }

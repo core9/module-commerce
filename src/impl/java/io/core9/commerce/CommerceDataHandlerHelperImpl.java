@@ -104,5 +104,6 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 		req.getContext().remove(CONTEXT_PREFIX + SESSION_ORDER_KEY);
 		return null;
 	}
+	
 }
 

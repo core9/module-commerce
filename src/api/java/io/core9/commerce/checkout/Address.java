@@ -1,5 +1,8 @@
 package io.core9.commerce.checkout;
 
+import io.core9.plugin.server.request.Request;
+import io.core9.plugin.server.request.RequestUtils;
+
 import java.io.Serializable;
 
 import javax.mail.internet.AddressException;
@@ -99,25 +102,47 @@ public class Address implements Serializable {
 		this.email = email;
 	}
 	
-	/**
-	 * TODO: return boolean (how do we track errors?)
-	 * @return
-	 */
-	public String validates() {
-		if(this.fname == null || this.fname.equals("")) return "First name cannot be empty.";
-		if(this.lname == null || this.lname.equals("")) return "Last name cannot be empty.";
-		if(this.street == null || this.street.equals("")) return "Street name cannot be empty.";
-		if(this.street2 == null || this.street2.equals("")) return "Street2 cannot be empty.";
-		if(this.postalcode == null || this.postalcode.equals("")) return "Postal code cannot be empty.";
-		if(this.city == null || this.city.equals("")) return "City cannot be empty.";
-		if(this.country == null || this.country.equals("")) return "Country cannot be empty.";
-		if(this.email == null || this.email.equals("")) return "Email cannot be empty.";
+	public boolean validates(Request req) {
+		boolean result = true;
+		if(this.fname == null || this.fname.equals("")) {
+			RequestUtils.addMessage(req, "First name cannot be empty.");
+			result = false;
+		}
+		if(this.lname == null || this.lname.equals("")) {
+			RequestUtils.addMessage(req, "Last name cannot be empty.");
+			result = false;
+		}
+		if(this.street == null || this.street.equals("")) {
+			RequestUtils.addMessage(req, "Street name cannot be empty.");
+			result = false;
+		}
+		if(this.street2 == null || this.street2.equals("")) {
+			RequestUtils.addMessage(req, "Street2 cannot be empty.");
+			result = false;
+		}
+		if(this.postalcode == null || this.postalcode.equals("")) {
+			RequestUtils.addMessage(req, "Postal code cannot be empty.");
+			result = false;
+		}
+		if(this.city == null || this.city.equals("")) {
+			RequestUtils.addMessage(req, "City cannot be empty.");
+			result = false;
+		}
+		if(this.country == null || this.country.equals("")) {
+			RequestUtils.addMessage(req, "Country cannot be empty.");
+			result = false;
+		}
+		if(this.email == null || this.email.equals("")) {
+			RequestUtils.addMessage(req, "Email cannot be empty.");
+			result = false;
+		}
 		try {
 			InternetAddress emailAddr = new InternetAddress(email);
 			emailAddr.validate();
 		} catch (AddressException e) {
-			return "Email is not in the normal format (user@domain.tld).";
+			RequestUtils.addMessage(req, "Email is not in the normal format (user@domain.tld).");
+			result = false;
 		}
-		return null;
+		return result;
 	}
 }

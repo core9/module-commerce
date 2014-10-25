@@ -2,6 +2,7 @@ package io.core9.commerce.cart;
 
 import io.core9.commerce.cart.lineitem.LineItem;
 import io.core9.commerce.cart.lineitem.StandardLineItem;
+import io.core9.plugin.server.request.Request;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -39,9 +40,9 @@ public class Cart implements Serializable {
 		return total;
 	}
 
-	public boolean validates() {
+	public boolean validates(Request req) {
 		for(LineItem item : items.values()) {
-			if(!item.validates(this)) {
+			if(!item.validates(req, this)) {
 				return false;
 			}
 		}

@@ -3,19 +3,19 @@ package io.core9.commerce.coupon;
 import io.core9.commerce.CommerceDataHandlerConfig;
 import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.commerce.cart.Cart;
+import io.core9.commerce.cart.lineitem.CouponLineItem;
+import io.core9.commerce.cart.lineitem.LineItem;
 import io.core9.plugin.database.repository.CrudRepository;
 import io.core9.plugin.database.repository.NoCollectionNamePresentException;
 import io.core9.plugin.database.repository.RepositoryFactory;
-import io.core9.plugin.server.VirtualHost;
 import io.core9.plugin.server.request.Request;
+import io.core9.plugin.server.request.RequestUtils;
 import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
 import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -55,11 +55,8 @@ public class CouponDataHandlerImpl<T extends DataHandlerDefaultConfig> implement
 			public Map<String, Object> handle(Request req, Map<String,Object> context) {
 				Map<String,Object> result = new HashMap<String, Object>();
 				Cart cart = helper.getCart(req);
-				if(context != null && (context.get("handled") == null || (Boolean) context.get("handled") == false)) {
-					handleCouponCall(req, cart, context);
-					context.put("handled", true);
-				}
-				result.put("available", getCoupons(req.getVirtualHost(), getCartItemIDs(cart)).size() > 0);
+				handleCouponCall(req, cart, context);
+				result.put("available", couponsAreApplicable(req, cart));
 				return result;
 			}
 
@@ -71,87 +68,61 @@ public class CouponDataHandlerImpl<T extends DataHandlerDefaultConfig> implement
 		};
 	}
 	
+	protected boolean couponsAreApplicable(Request req, Cart cart) {
+		if(cartContainsCoupon(cart)) {
+			return false;
+		}
+		for(CouponHandler handler : COUPON_HANDLERS.values()) {
+			if(handler.couponsAreAvailable(req, cart)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	protected void handleCouponCall(Request req, Cart cart, Map<String, Object> context) {
+		if(context == null || (context.get("handled") != null && (Boolean) context.get("handled"))) {
+			return;
+		}
 		String code = (String) context.get("code");
 		Coupon coupon;
 		if(context.get("code") == null || (coupon = coupons.read(req.getVirtualHost(), code)) == null) {
-			req.getResponse().addGlobal("message", "This is an unknown coupon value");
-			return;
+			RequestUtils.addMessage(req, "This is an unknown coupon value");
+		} else if(cartContainsCoupon(cart)) {
+			RequestUtils.addMessage(req, "Your cart already contains a coupon, only one coupon per order allowed.");
 		} else {
 			applyCouponToCart(req, cart, coupon);
 		}
+		context.put("handled", true);
+	}
+
+	public static boolean cartContainsCoupon(Cart cart) {
+		for(LineItem item : cart.getItems().values()) {
+			if(item instanceof CouponLineItem) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void applyCouponToCart(Request req, Cart cart, Coupon coupon) {
 		CouponHandler handler = COUPON_HANDLERS.get(coupon.getHandler());
 		if(handler == null) {
-			throw new UnsupportedOperationException("The Coupon handler " + coupon.getHandler() + "is not available.");
+			throw new UnsupportedOperationException("The Coupon handler " + coupon.getHandler() + " is not available.");
 		}
-		coupon = handler.handle(coupon, cart);
+		coupon = handler.handle(req, coupon, cart);
 		coupons.update(req.getVirtualHost(), coupon.getId(), coupon);
 		helper.saveCart(req, cart);
-//		List<String> skus = coupon.getApplicableSkus();
-//		for(String sku : skus) {
-//			LineItem item;
-//			if((item = cart.getItems().get(sku)) != null) {
-//				if(coupon.getPercentage() > 0) {
-//					item.setPrice(item.getPrice() * (1 - coupon.getPercentage()/100));
-//				} else if(coupon.getAmount() > 0) {
-//					LinkedLineItem linked;
-//					if(item instanceof LinkedLineItem) {
-//						linked = (LinkedLineItem) item;
-//					} else {
-//						linked = new LinkedLineItem(item, new ArrayList<String>());
-//						cart.getItems().put(linked.getId(), linked);
-//					}
-//					linked.getLinkedLineItems().add(coupon.getId());
-//					cart.getItems().put(coupon.getId(), new CouponLineItem(coupon.getId(), -1 * coupon.getAmount(), "Coupon", null, null) {
-//						@Override
-//						public boolean validates(Cart cart) {
-//							// Call handler logic
-//							return true;
-//						}
-//					});
-//				}
-//				coupon.decrement();
-//				coupons.update(req.getVirtualHost(), coupon.getId(), coupon);
-//			}
-//		}
-		helper.saveCart(req, cart);
-	}
-
-	/**
-	 * Get a List of SKUS for the cart items
-	 * @param cart
-	 * @return
-	 */
-	public List<String> getCartItemIDs(Cart cart) {
-		return new ArrayList<String>(cart.getItems().keySet());
 	}
 	
-	/**
-	 * Return the available Coupons for a list of SKUs
-	 * @param vhost
-	 * @param skus
-	 * @return
-	 */
-	public List<Coupon> getCoupons(VirtualHost vhost, List<String> skus) {
-		Map<String,Object> query = new HashMap<String, Object>(2);
-		Map<String,Object> array = new HashMap<String, Object>(1);
-		array.put("$in", skus);
-		query.put("applicableSkus", array);
-		query.put("active", true);
-		List<Coupon> foundCoupons = coupons.query(vhost, query);
-		if(foundCoupons != null) {
-			return foundCoupons;
-		} else {
-			return new ArrayList<Coupon>();
-		}
-	}
-
 	@Override
 	public void addCouponHandler(String couponType, CouponHandler handler) {
 		COUPON_HANDLERS.put(couponType, handler);
+	}
+
+	@Override
+	public CrudRepository<Coupon> getCouponRepository() {
+		return coupons;
 	}
 
 }

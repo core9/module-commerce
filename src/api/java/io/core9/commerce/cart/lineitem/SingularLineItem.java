@@ -1,6 +1,7 @@
 package io.core9.commerce.cart.lineitem;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.plugin.server.request.Request;
 
 public class SingularLineItem extends StandardLineItem {
 	
@@ -16,8 +17,8 @@ public class SingularLineItem extends StandardLineItem {
 	}
 	
 	@Override
-	public boolean validates(Cart cart) {
-		if(super.validates(cart)) {
+	public boolean validates(Request req, Cart cart) {
+		if(super.validates(req, cart)) {
 			this.setQuantity(1);
 			return true;
 		} else {

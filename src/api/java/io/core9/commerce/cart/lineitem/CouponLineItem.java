@@ -1,6 +1,7 @@
 package io.core9.commerce.cart.lineitem;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.plugin.server.request.Request;
 
 public class CouponLineItem extends SingularLineItem {
 	
@@ -22,7 +23,7 @@ public class CouponLineItem extends SingularLineItem {
 	}
 	
 	@Override
-	public boolean validates(Cart cart) {
+	public boolean validates(Request req, Cart cart) {
 		return true;
 	}
 

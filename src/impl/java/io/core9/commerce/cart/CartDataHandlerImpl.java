@@ -67,10 +67,7 @@ public class CartDataHandlerImpl<T extends DataHandlerDefaultConfig> implements 
 			@Override
 			public Map<String, Object> handle(Request req, Map<String, Object> context) {
 				Cart cart = helper.getCart(req);
-				if(context != null && (context.get("handled") == null || (Boolean) context.get("handled") == false)) {
-					handleCartCall(req, cart, context);
-					context.put("handled", true);
-				}
+				handleCartCall(req, cart, context);
 				return getCartAsMap(cart);
 			}
 		};
@@ -83,11 +80,14 @@ public class CartDataHandlerImpl<T extends DataHandlerDefaultConfig> implements 
 		return result;
 	}
 
-	protected void handleCartCall(Request request, Cart cart, Map<String, Object> context) {
+	protected Cart handleCartCall(Request request, Cart cart, Map<String, Object> context) {
+		if(context == null || (context.get("handled") != null && (Boolean) context.get("handled"))) {
+			return cart;
+		}
 		switch(request.getMethod()) {
 		case POST:
 			if(context.get("op") == null) {
-				return;
+				return cart;
 			} else {
 				switch((String) context.get("op")) {
 				case "delete":
@@ -109,11 +109,13 @@ public class CartDataHandlerImpl<T extends DataHandlerDefaultConfig> implements 
 			updateItemInCart(cart, context);
 			break;
 		default:
-			return;
+			break;
 		}
-		if(cart.validates()) {
+		if(cart.validates(request)) {
 			helper.saveCart(request, cart);
 		}
+		context.put("handled", true);
+		return cart;
 	}
 	
 	/**

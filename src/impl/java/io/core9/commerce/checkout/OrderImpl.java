@@ -5,6 +5,7 @@ import io.core9.commerce.cart.lineitem.StandardLineItem;
 import io.core9.plugin.database.repository.AbstractCrudEntity;
 import io.core9.plugin.database.repository.Collection;
 import io.core9.plugin.database.repository.CrudEntity;
+import io.core9.plugin.server.request.Request;
 
 import java.util.Map;
 
@@ -149,9 +150,10 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	}
 
 	@Override
-	public boolean validates() {
-		if(billing.validates() == null && shipping.validates() == null) {
-			return cart.validates();
+	public boolean validates(Request req) {
+		if((billing == null || billing.validates(req)) && 
+		   (shipping == null || shipping.validates(req))) {
+			return cart.validates(req);
 		}
 		return false;
 	}
