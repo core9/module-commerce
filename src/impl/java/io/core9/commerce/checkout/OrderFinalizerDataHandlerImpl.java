@@ -4,6 +4,7 @@ import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.mail.MailerPlugin;
 import io.core9.mail.MailerProfile;
 import io.core9.plugin.database.repository.DataUtils;
+import io.core9.plugin.server.VirtualHost;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.template.closure.ClosureTemplateEngine;
 import io.core9.plugin.widgets.datahandler.DataHandler;
@@ -66,7 +67,7 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 					   order.getShipping() != null &&
 					   order.getPaymentmethod() != null) {
 						helper.finalizeOrder(req, order);
-						mail(config, req, order);
+						mailOrderConfirmation(config, req.getVirtualHost(), order);
 						break;
 					} else {
 						order.setStatus("BLOCK");
@@ -91,14 +92,15 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 		};
 	}
 
-	protected void mail(T config, Request req, Order order) {
+	@Override
+	public void mailOrderConfirmation(T config, VirtualHost vhost, Order order) {
 		try {
-			MailerProfile profile = mailer.getProfile(req.getVirtualHost(), config.getMailerProfile());
+			MailerProfile profile = mailer.getProfile(vhost, config.getMailerProfile());
 			MimeMessage message = (MimeMessage) mailer.create(profile);
 			message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(order.getBilling().getEmail()));
 			message.setFrom(new InternetAddress(getOrDefault("from", config.getMailerFromAddress(), profile)));
 			message.setSubject(getOrDefault("subject", config.getMailerSubject(), profile));
-			message.setText(engine.render(req.getVirtualHost(), config.getMailerTemplate(), DataUtils.toMap(order)), "utf-8", "html");
+			message.setText(engine.render(vhost, config.getMailerTemplate(), DataUtils.toMap(order)), "utf-8", "html");
 			mailer.send(profile, message);
 		} catch (MessagingException e) {
 			LOG.error("Error sending mail: " + e.getMessage());
