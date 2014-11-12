@@ -9,6 +9,7 @@ import io.core9.plugin.database.repository.CrudRepository;
 import io.core9.plugin.database.repository.NoCollectionNamePresentException;
 import io.core9.plugin.database.repository.RepositoryFactory;
 import io.core9.plugin.server.request.Request;
+import io.core9.plugin.server.request.RequestUtils;
 import io.core9.plugin.widgets.datahandler.ContextualDataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
@@ -92,21 +93,26 @@ public class CartDataHandlerImpl<T extends DataHandlerDefaultConfig> implements 
 				switch((String) context.get("op")) {
 				case "delete":
 					deleteItemFromCart(request, cart, context);
+					RequestUtils.addMessage(request, "The product has been deleted from your cart.");
 					break;
 				case "update":
 					updateItemInCart(cart, context);
+					RequestUtils.addMessage(request, "The product in your cart has been updated.");
 					break;
 				default:
 					addItemToCart(cart, context);
+					RequestUtils.addMessage(request, "The product has been added to your cart.");
 					break;
 				}
 			}
 			break;
 		case DELETE:
 			deleteItemFromCart(request, cart, context);
+			RequestUtils.addMessage(request, "The product has been deleted from your cart.");
 			break;
 		case PUT:
 			updateItemInCart(cart, context);
+			RequestUtils.addMessage(request, "The product in your cart has been updated.");
 			break;
 		default:
 			break;
