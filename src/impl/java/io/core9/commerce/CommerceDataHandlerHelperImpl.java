@@ -62,7 +62,6 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 			Session session = auth.getUser(req).getSession();
 			order = (OrderImpl) getOrder(req, session);
 		}
-		order.setCart(getCart(req));
 		return order;
 	}
 	
@@ -72,6 +71,7 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 		if(order == null) {
 			order = (OrderImpl) createOrder(req);
 		}
+		order.setCart(getCart(req));
 		req.putContext(CONTEXT_PREFIX + SESSION_ORDER_KEY, order);
 		return order;
 	}
