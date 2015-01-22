@@ -4,18 +4,13 @@ import io.core9.commerce.cart.Cart;
 import io.core9.plugin.server.request.Request;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public interface LineItem extends Serializable {
 
 	String getId(); 
 
 	void setId(String id);
-
-	String getProducttype();
-	
-	String getType();
-
-	void setProducttype(String producttype);
 
 	int getQuantity();
 
@@ -38,4 +33,6 @@ public interface LineItem extends Serializable {
 	void setLink(String link);
 
 	boolean validates(Request req, Cart cart);
+
+	LineItem parse(Map<String, Object> context);
 }

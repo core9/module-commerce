@@ -2,8 +2,12 @@ package io.core9.commerce.cart;
 
 import io.core9.commerce.CommerceDataHandlerHelper;
 import io.core9.commerce.cart.lineitem.CouponLineItem;
+import io.core9.commerce.cart.lineitem.CustomizableLineItem;
 import io.core9.commerce.cart.lineitem.LineItem;
+import io.core9.commerce.cart.lineitem.LineItemFactory;
 import io.core9.commerce.cart.lineitem.LinkedLineItem;
+import io.core9.commerce.cart.lineitem.MaximumQuantityLineItem;
+import io.core9.commerce.cart.lineitem.StandardLineItem;
 import io.core9.commerce.coupon.Coupon;
 import io.core9.plugin.database.repository.CrudRepository;
 import io.core9.plugin.database.repository.NoCollectionNamePresentException;
@@ -36,6 +40,9 @@ public class CartDataHandlerImpl<T extends DataHandlerDefaultConfig> implements 
 	
 	@InjectPlugin
 	private CommerceEncryptionPlugin encryption;
+	
+	@InjectPlugin
+	private LineItemFactory factory;
 	
 	//TODO: remove, create LineItemHandlers for delete, update etc.
 	private CrudRepository<Coupon> coupons;
@@ -100,8 +107,12 @@ public class CartDataHandlerImpl<T extends DataHandlerDefaultConfig> implements 
 					RequestUtils.addMessage(request, "The product in your cart has been updated.");
 					break;
 				default:
-					addItemToCart(cart, context);
-					RequestUtils.addMessage(request, "The product has been added to your cart.");
+					try {
+						addItemToCart(cart, context);
+						RequestUtils.addMessage(request, "The product has been added to your cart.");
+					} catch (CartException e) {
+						RequestUtils.addMessage(request, e.getMessage(), e.getArgs());
+					}
 					break;
 				}
 			}
@@ -180,20 +191,46 @@ public class CartDataHandlerImpl<T extends DataHandlerDefaultConfig> implements 
 	 * TODO: Move to LineItemHandlers
 	 * @param cart
 	 * @param context
+	 * @throws CartException 
 	 */
-	public void addItemToCart(Cart cart, Map<String, Object> context) {
+	public void addItemToCart(Cart cart, Map<String, Object> context) throws CartException {
 		int quantity = Integer.parseInt((String) context.get("quantity"));
-		if(quantity > 0 && isValid(context)) {
-			cart.addItem(
-				(String) context.get("itemid"),
-				quantity, 
-				Integer.parseInt((String) context.get("price")), 
-				(String) context.get("description"),
-				(String) context.get("image"),
-				(String) context.get("link"));
+		int max = -1;
+		if(context.get("max") != null) {
+			max = Integer.parseInt((String) context.get("max"));
+			if(cart.getItems() != null) {
+				LineItem item = cart.getItems().get((String) context.get("itemid"));
+				if(item != null) {
+					max = max - item.getQuantity();
+				}
+			}
+		}
+		if(max == 0) {
+			throw new CartException("We're sorry, you have added the maximum quantity to your cart", max);
+		} else if(max > 0 && quantity > max) {
+			throw new CartException("We're sorry, but you can only order %d items at the moment", max);
+		} else if (quantity > 0 && isValid(context)) {
+			LineItem item = parseLineItem(context, quantity);
+			cart.addItem(item);
+		} else {
+			throw new CartException("Your request couldn't be validated");
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	private LineItem parseLineItem(Map<String, Object> context, int quantity) {
+		LineItem item;
+		 
+		if(context.containsKey("extras")) {
+			item = new CustomizableLineItem(itemid,	quantity, price, description, image, link, (Map<String,Object>) context.get("extras"));
+		} else if(context.containsKey("max")) {
+			item = new MaximumQuantityLineItem(itemid,	quantity, price, description, image, link, Integer.parseInt((String) context.get("max")));
+		} else {
+			item = new StandardLineItem(itemid,	quantity, price, description, image, link);
+		}
+		return item;
+	}
+
 	private boolean isValid(Map<String,Object> body) {
 		String[] fields = getHashFields(body);
 		Map<String,Object> validation = new HashMap<String,Object>();

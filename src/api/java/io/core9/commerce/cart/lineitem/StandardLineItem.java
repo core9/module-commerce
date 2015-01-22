@@ -1,16 +1,15 @@
 package io.core9.commerce.cart.lineitem;
 
+import java.util.Map;
+
 import io.core9.commerce.cart.Cart;
 import io.core9.plugin.server.request.Request;
-
 
 public class StandardLineItem implements LineItem {
 
 	private static final long serialVersionUID = -3744618595117264970L;
-	private static final String LINE_ITEM_TYPE = "standard";
 
 	private String id;
-	private String producttype;
 	private int quantity;
 	private int price;
 	private String description;
@@ -25,16 +24,6 @@ public class StandardLineItem implements LineItem {
 	@Override
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	@Override
-	public String getProducttype() {
-		return producttype;
-	}
-
-	@Override
-	public void setProducttype(String producttype) {
-		this.producttype = producttype;
 	}
 
 	@Override
@@ -67,10 +56,6 @@ public class StandardLineItem implements LineItem {
 		this.description = description;
 	}
 
-	public StandardLineItem() {
-
-	}
-
 	@Override
 	public String getImage() {
 		return image;
@@ -95,14 +80,9 @@ public class StandardLineItem implements LineItem {
 	public boolean validates(Request req, Cart cart) {
 		return true;
 	}
+	
+	public StandardLineItem() {
 
-	public StandardLineItem(String id, int quantity, int price, String description, String image, String link) {
-		this.id = id;
-		this.image = image;
-		this.description = description;
-		this.price = price;
-		this.quantity = quantity;
-		this.link = link;
 	}
 
 	public StandardLineItem(LineItem item) {
@@ -112,12 +92,16 @@ public class StandardLineItem implements LineItem {
 		this.price = item.getPrice();
 		this.quantity = item.getQuantity();
 		this.link = item.getLink();
-		this.producttype = item.getProducttype();
 	}
 
 	@Override
-	public String getType() {
-		return LINE_ITEM_TYPE;
+	public LineItem parse(Map<String, Object> context) {
+		this.id  = (String) context.get("itemid");
+		this.price = Integer.parseInt((String) context.get("price"));
+		this.description = (String) context.get("description"); 
+		this.image = (String) context.get("image");
+		this.link = (String) context.get("link");
+		return this;
 	}
 
 }

@@ -5,15 +5,8 @@ import io.core9.plugin.server.request.Request;
 
 public class CouponLineItem extends SingularLineItem {
 	
-	private static final String LINE_ITEM_TYPE = "coupon";
-
 	private static final long serialVersionUID = 7271873568037827041L;
 	
-	@Override
-	public String getType() {
-		return LINE_ITEM_TYPE;
-	}
-
 	public CouponLineItem(LineItem item) {
 		super(item);
 	}
