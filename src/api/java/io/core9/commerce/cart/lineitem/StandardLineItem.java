@@ -3,6 +3,7 @@ package io.core9.commerce.cart.lineitem;
 import java.util.Map;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.commerce.cart.CartException;
 import io.core9.plugin.server.request.Request;
 
 public class StandardLineItem implements LineItem {
@@ -32,7 +33,7 @@ public class StandardLineItem implements LineItem {
 	}
 
 	@Override
-	public void setQuantity(int quantity) {
+	public void setQuantity(int quantity) throws CartException {
 		this.quantity = quantity;
 	}
 
@@ -85,23 +86,41 @@ public class StandardLineItem implements LineItem {
 
 	}
 
-	public StandardLineItem(LineItem item) {
-		this.id = item.getId();
-		this.image = item.getImage();
-		this.description = item.getDescription();
-		this.price = item.getPrice();
-		this.quantity = item.getQuantity();
-		this.link = item.getLink();
+	public StandardLineItem(LineItem item) throws CartException {
+		this.setId(item.getId());
+		this.setImage(item.getImage());
+		this.setDescription(item.getDescription());
+		this.setPrice(item.getPrice());
+		this.setQuantity(item.getQuantity());
+		this.setLink(item.getLink());
 	}
 
 	@Override
-	public LineItem parse(Map<String, Object> context) {
-		this.id  = (String) context.get("itemid");
-		this.price = Integer.parseInt((String) context.get("price"));
-		this.description = (String) context.get("description"); 
-		this.image = (String) context.get("image");
-		this.link = (String) context.get("link");
+	public LineItem parse(Map<String, Object> context) throws NumberFormatException, CartException {
+		if(context.get("itemid") != null) {
+			this.setId((String) context.get("itemid"));
+		}
+		if(context.get("price") != null) {
+			this.setPrice(Integer.parseInt((String) context.get("price")));
+		}
+		if(context.get("description") != null) {
+			this.setDescription((String) context.get("description"));
+		}
+		if(context.get("image") != null) {
+			this.setImage((String) context.get("image"));
+		}
+		if(context.get("link") != null) {
+			this.setLink((String) context.get("link"));
+		}
+		if(context.get("quantity") != null) {
+			this.setQuantity(Integer.parseInt((String) context.get("quantity")));
+		}
 		return this;
+	}
+
+	@Override
+	public void delete() {
+		
 	}
 
 }

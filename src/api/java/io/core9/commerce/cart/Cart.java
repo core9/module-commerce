@@ -1,8 +1,8 @@
 package io.core9.commerce.cart;
 
 import io.core9.commerce.cart.lineitem.LineItem;
-import io.core9.commerce.cart.lineitem.StandardLineItem;
 import io.core9.plugin.server.request.Request;
+import io.core9.plugin.server.request.RequestUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -16,17 +16,17 @@ public class Cart implements Serializable {
 	
 	Map<String, LineItem> items = new HashMap<String, LineItem>();
 
-	public void addItem(String id, int quantity, int price, String description, String image, String link) {
-		addItem(new StandardLineItem(id, quantity, price, description, image, link));
-	}
-
 	public Map<String, LineItem> getItems() {
 		return this.items;
 	}
 
-	public void addItem(LineItem item) {
+	public void addItem(Request req, LineItem item) {
 		if(items.containsKey(item.getId())) {
-			item.setQuantity(item.getQuantity() + items.get(item.getId()).getQuantity());
+			try {
+				item.setQuantity(item.getQuantity() + items.get(item.getId()).getQuantity());
+			} catch (CartException e) {
+				RequestUtils.addMessage(req, e.getMessage(), e.getArgs());
+			}
 		}
 		items.put(item.getId(), item);
 	}

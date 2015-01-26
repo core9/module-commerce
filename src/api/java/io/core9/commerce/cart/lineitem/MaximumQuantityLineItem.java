@@ -3,16 +3,22 @@ package io.core9.commerce.cart.lineitem;
 import java.util.Map;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.commerce.cart.CartException;
 import io.core9.plugin.server.request.Request;
+import io.core9.plugin.server.request.RequestUtils;
 
 public class MaximumQuantityLineItem extends StandardLineItem {
 	
-	private int maximum;
 	private static final long serialVersionUID = -505937647311719407L;
 	
-	public MaximumQuantityLineItem(LineItem item, int maximum) {
+	private int maximum;
+	
+	public MaximumQuantityLineItem() {
+		
+	}
+	
+	public MaximumQuantityLineItem(LineItem item) throws CartException {
 		super(item);
-		this.maximum = maximum;
 	}
 	
 	public int getMaximum() {
@@ -23,24 +29,34 @@ public class MaximumQuantityLineItem extends StandardLineItem {
 		this.maximum = maximum;
 	}
 	
+	public void setQuantity(int quantity) throws CartException {
+		if(maximum >= quantity) {
+			super.setQuantity(quantity);
+		} else {
+			super.setQuantity(maximum);
+			throw new CartException("We're sorry, you're only allowed to order %d items of this product.", maximum);
+		}
+	}
+	
 	@Override
 	public boolean validates(Request req, Cart cart) {
-		return super.validates(req, cart) && this.maximum >= this.getQuantity();
+		if(super.validates(req, cart)) {
+			if(this.maximum >= this.getQuantity()) {
+				return true;
+			} else {
+				RequestUtils.addMessage(req, "We're sorry, you're only allowed to order %d items of this product.", this.maximum);
+			}
+		}
+		return false;
 	}
 	
 	@Override
-	public LineItem parse(Map<String, Object> context) {
+	public LineItem parse(Map<String, Object> context) throws NumberFormatException, CartException {
+		if(context.get("max") != null) {
+			this.maximum = Integer.parseInt((String) context.get("max"));
+		}
 		super.parse(context);
-		this.maximum = Integer.parseInt((String) context.get("max"));
 		return this;
-	}
-	
-	public MaximumQuantityLineItem() {
-		
-	}
-	
-	public MaximumQuantityLineItem(LineItem item) {
-		super(item);
 	}
 
 }

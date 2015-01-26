@@ -1,6 +1,7 @@
 package io.core9.commerce.cart.lineitem;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.commerce.cart.CartException;
 import io.core9.plugin.server.request.Request;
 
 import java.io.Serializable;
@@ -14,7 +15,7 @@ public interface LineItem extends Serializable {
 
 	int getQuantity();
 
-	void setQuantity(int quantity);
+	void setQuantity(int quantity) throws CartException;
 
 	int getPrice();
 
@@ -34,5 +35,7 @@ public interface LineItem extends Serializable {
 
 	boolean validates(Request req, Cart cart);
 
-	LineItem parse(Map<String, Object> context);
+	LineItem parse(Map<String, Object> context) throws CartException;
+
+	void delete();
 }

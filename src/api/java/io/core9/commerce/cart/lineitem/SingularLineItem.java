@@ -3,6 +3,7 @@ package io.core9.commerce.cart.lineitem;
 import java.util.Map;
 
 import io.core9.commerce.cart.Cart;
+import io.core9.commerce.cart.CartException;
 import io.core9.plugin.server.request.Request;
 
 public class SingularLineItem extends StandardLineItem {
@@ -12,7 +13,11 @@ public class SingularLineItem extends StandardLineItem {
 	@Override
 	public boolean validates(Request req, Cart cart) {
 		if(super.validates(req, cart)) {
-			this.setQuantity(1);
+			try {
+				this.setQuantity(1);
+			} catch (CartException e) {
+				e.printStackTrace();
+			}
 			return true;
 		} else {
 			return false;
@@ -20,7 +25,7 @@ public class SingularLineItem extends StandardLineItem {
 	}
 	
 	@Override
-	public LineItem parse(Map<String, Object> context) {
+	public LineItem parse(Map<String, Object> context) throws NumberFormatException, CartException {
 		super.parse(context);
 		this.setQuantity(1);
 		return this;
@@ -30,7 +35,7 @@ public class SingularLineItem extends StandardLineItem {
 		
 	}
 	
-	public SingularLineItem(LineItem item) {
+	public SingularLineItem(LineItem item) throws CartException {
 		super(item);
 		this.setQuantity(1);
 	}
