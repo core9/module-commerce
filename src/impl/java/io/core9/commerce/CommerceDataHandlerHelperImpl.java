@@ -1,5 +1,7 @@
 package io.core9.commerce;
 
+import java.util.Calendar;
+
 import io.core9.commerce.cart.Cart;
 import io.core9.commerce.checkout.Order;
 import io.core9.commerce.checkout.OrderImpl;
@@ -78,6 +80,7 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 
 	@Override
 	public Order saveOrder(Request req, Order order) {
+		order.setTimestamp(System.currentTimeMillis() + "");
 		Session session = auth.getUser(req).getSession();
 		session.setAttribute(SESSION_ORDER_KEY, order);
 		session.setTimeout(ONE_WEEK_MILLIS); //Timeout to one week

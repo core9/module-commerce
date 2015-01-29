@@ -5,6 +5,7 @@ import io.core9.commerce.cart.lineitem.StandardLineItem;
 import io.core9.plugin.server.request.Request;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
 public interface Order extends Serializable {
@@ -122,6 +123,10 @@ public interface Order extends Serializable {
 	Address getBilling();
 
 	void setBilling(Address billing);
+	
+	String getTimestamp();
+	
+	void setTimestamp(String timestamp);
 	
 	boolean validates(Request req);
 }

@@ -25,6 +25,7 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	private String remark;
 	private String status;
 	private String message;
+	private String timestamp;
 	
 	public String getId() {
 		if(_id == null) {
@@ -156,6 +157,16 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 			return cart.validates(req);
 		}
 		return false;
+	}
+
+	@Override
+	public String getTimestamp() {
+		return this.timestamp;
+	}
+
+	@Override
+	public void setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
 	}
 
 }
