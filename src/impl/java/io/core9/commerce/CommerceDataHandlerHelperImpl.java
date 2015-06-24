@@ -1,7 +1,5 @@
 package io.core9.commerce;
 
-import java.util.Calendar;
-
 import io.core9.commerce.cart.Cart;
 import io.core9.commerce.checkout.Order;
 import io.core9.commerce.checkout.OrderImpl;

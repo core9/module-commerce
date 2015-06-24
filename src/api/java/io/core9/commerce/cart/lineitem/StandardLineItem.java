@@ -11,6 +11,7 @@ public class StandardLineItem implements LineItem {
 	private static final long serialVersionUID = -3744618595117264970L;
 
 	private String id;
+	private String gid;
 	private int quantity;
 	private int price;
 	private String description;
@@ -27,6 +28,16 @@ public class StandardLineItem implements LineItem {
 		this.id = id;
 	}
 
+	@Override
+	public String getGid(){
+		return gid;
+	}
+	
+	private void setGid(String gid){
+		this.gid = gid;
+	}
+	
+	
 	@Override
 	public int getQuantity() {
 		return quantity;
@@ -85,6 +96,17 @@ public class StandardLineItem implements LineItem {
 	public StandardLineItem() {
 
 	}
+	
+	private String getGidFromLink(){
+		
+		try {
+			//String link == "https://www.fopshop.nl/prod/verpleegster-kind/34545"; 34545 = gid
+			gid = link.substring(link.lastIndexOf("/") + 1, link.length());
+		} catch (Exception e) {
+			gid = "0"; // unsure what to do here
+		}
+		return gid;
+	}
 
 	public StandardLineItem(LineItem item) throws CartException {
 		this.setId(item.getId());
@@ -93,6 +115,7 @@ public class StandardLineItem implements LineItem {
 		this.setPrice(item.getPrice());
 		this.setQuantity(item.getQuantity());
 		this.setLink(item.getLink());
+		this.setGid(this.getGidFromLink());
 	}
 
 	@Override
@@ -111,6 +134,7 @@ public class StandardLineItem implements LineItem {
 		}
 		if(context.get("link") != null) {
 			this.setLink((String) context.get("link"));
+			this.setGid(this.getGidFromLink());
 		}
 		if(context.get("quantity") != null) {
 			this.setQuantity(Integer.parseInt((String) context.get("quantity")));

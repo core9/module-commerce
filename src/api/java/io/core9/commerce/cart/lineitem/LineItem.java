@@ -38,4 +38,6 @@ public interface LineItem extends Serializable {
 	LineItem parse(Map<String, Object> context) throws CartException;
 
 	void delete();
+
+	String getGid();
 }
