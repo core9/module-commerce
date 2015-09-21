@@ -151,6 +151,15 @@ public class CartDataHandlerImpl<T extends DataHandlerDefaultConfig> implements 
 	 */
 	public void updateItemInCart(Cart cart, Map<String, Object> context) throws CartException {
 		LineItem item = cart.getItems().get(context.get("itemid"));
+		if(context.get("quantity") != null) {
+			try {
+				if(Integer.parseInt((String) context.get("quantity")) < 1) {
+					throw new CartException("The minimum amount is 1");
+				}
+			} catch (NumberFormatException e) {
+				throw new CartException("The minimum amount is 1");
+			}
+		}
 		item.parse(context);
 	}
 
