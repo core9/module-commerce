@@ -34,6 +34,14 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 		return _id;
 	}
 	
+	@Override
+	public Order newId() {
+		this._id = null;
+		super.set_id(null);
+		this._id = super.getId();
+		return this;
+	}
+	
 	public String get_id() {
 		return getId();
 	}

@@ -105,6 +105,13 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 		req.getContext().remove(CONTEXT_PREFIX + SESSION_ORDER_KEY);
 		return null;
 	}
+
+	@Override
+	public Order renewOrderID(Request req) {
+		Order order = getOrder(req).newId();
+		order = saveOrder(req, order);
+		return order;
+	}
 	
 }
 

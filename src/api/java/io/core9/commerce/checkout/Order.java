@@ -5,7 +5,6 @@ import io.core9.commerce.cart.lineitem.StandardLineItem;
 import io.core9.plugin.server.request.Request;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Map;
 
 public interface Order extends Serializable {
@@ -15,6 +14,12 @@ public interface Order extends Serializable {
 	 * @return
 	 */
 	String getId();
+	
+	/**
+	 * Reset the Order ID
+	 * @return
+	 */
+	Order newId();
 	
 	/**
 	 * Set the Order ID

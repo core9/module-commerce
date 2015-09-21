@@ -21,4 +21,6 @@ public interface CommerceDataHandlerHelper extends Core9Plugin {
 	Order finalizeOrder(Request req, Order order);
 
 	Order getOrder(Request req, Session session);
+	
+	Order renewOrderID(Request req);
 }
