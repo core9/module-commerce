@@ -10,6 +10,7 @@ import io.core9.plugin.widgets.datahandler.DataHandler;
 import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
 import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,8 @@ import net.xeoh.plugins.base.annotations.injections.InjectPlugin;
 
 @PluginImplementation
 public class PaymentMethodDataHandlerImpl<T extends DataHandlerDefaultConfig> implements PaymentMethodDataHandler<T> {
+	
+	private static final String WEIGHT = "weight";
 	
 	@InjectPlugin
 	private CommerceDataHandlerHelper helper;
@@ -48,7 +51,18 @@ public class PaymentMethodDataHandlerImpl<T extends DataHandlerDefaultConfig> im
 				List<Map<String,Object>> methods = db.getMultipleResults(
 						vhost.getContext("database"), 
 						vhost.getContext("prefix") + "configuration", 
-						PaymentMethod.DEFAULT_QUERY); 
+						PaymentMethod.DEFAULT_QUERY);
+				Collections.sort(methods, (Map<String, Object> a, Map<String,Object> b) -> {
+					if(a.containsKey(WEIGHT) && b.containsKey(WEIGHT)) {
+						return ((String) a.get(WEIGHT)).compareTo((String) b.get(WEIGHT));
+					} else if(a.containsKey(WEIGHT)) {
+						return 1;
+					} else if(b.containsKey(WEIGHT)) {
+						return -1;
+					} else {
+						return 0;
+					}
+				});
 				result.put("paymentmethods", methods);
 				order = handlePaymentSelection(req, order, context, methods);
 				if(order != null) {
