@@ -108,9 +108,17 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 
 	@Override
 	public Order renewOrderID(Request req) {
-		Order order = getOrder(req).newId();
+		Order order = getOrder(req);
+		String id = order.getId();
+		order.newId();
 		order = saveOrder(req, order);
+		orderRepository.delete(req.getVirtualHost(), id);
 		return order;
+	}
+
+	@Override
+	public Session getSession(Request req) {
+		return auth.getUser(req).getSession();
 	}
 	
 }

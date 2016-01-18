@@ -67,6 +67,7 @@ public class PaymentMethodDataHandlerImpl<T extends DataHandlerDefaultConfig> im
 				order = handlePaymentSelection(req, order, context, methods);
 				if(order != null) {
 					result.put("paymentmethod", order.getPaymentmethod());
+					result.put("paymentmethodoptions", helper.getSession(req).getAttribute("paymentmethodoptions"));
 				}
 				return result;
 			}
@@ -99,6 +100,7 @@ public class PaymentMethodDataHandlerImpl<T extends DataHandlerDefaultConfig> im
 			}
 			if(found) {
 				order.setPaymentmethod(paymentmethod);
+				helper.getSession(req).setAttribute("paymentmethodoptions", context.get("paymentmethodoptions"));
 			} else {
 				RequestUtils.addMessage(req, "You selected an unknown payment method, please select an existing method");
 			}
