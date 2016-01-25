@@ -56,20 +56,14 @@ public class PaymentDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 				VirtualHost vhost = req.getVirtualHost();
 				Order order = helper.getOrder(req);
 				PaymentMethod method = getPaymentMethod(vhost, order);
+				DataHandler<?> handler = getPaymentDataHandler(vhost, method);
+				Map<String,Object> paymentData = handler != null ? handler.handle(req) : new HashMap<String, Object>(0);
+				order.setStatus("paying");
+				helper.saveOrder(req, order);
 				
 				Map<String, Object> result = new HashMap<String, Object>(2);
 				result.put("payment", DataUtils.toMap(method));
-				DataHandler<?> handler = getPaymentDataHandler(vhost, method);
-				if(handler != null) {
-					order.setStatus("paying");
-					helper.saveOrder(req, order);
-					Map<String,Object> paymentData = handler.handle(req);
-					result.put("paymentData", paymentData);
-				} else {
-					order.setStatus("initialized");
-					helper.saveOrder(req, order);
-					result.put("paymentData", new HashMap<String, Object>(0));
-				}
+				result.put("paymentData", paymentData);
 				return result;
 			}
 
@@ -81,7 +75,8 @@ public class PaymentDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 		};
 	}
 	
-	private DataHandler<?> getPaymentDataHandler(VirtualHost vhost, PaymentMethod method) {
+	@Override
+	public DataHandler<?> getPaymentDataHandler(VirtualHost vhost, PaymentMethod method) {
 		if(method == null) {
 			return null;
 		}
@@ -92,7 +87,8 @@ public class PaymentDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 		return widget.getDataHandler();
 	}
 	
-	private PaymentMethod getPaymentMethod(VirtualHost vhost, Order order) {
+	@Override
+	public PaymentMethod getPaymentMethod(VirtualHost vhost, Order order) {
 		Map<String, Object> query = new HashMap<String, Object>();
 		query.put("name", order.getPaymentmethod());
 		List<PaymentMethod> foundMethods = methods.query(vhost, query);
@@ -100,6 +96,18 @@ public class PaymentDataHandlerImpl<T extends DataHandlerDefaultConfig> implemen
 			return foundMethods.get(0);
 		}
 		return null;
+	}
+
+	@Override
+	public DataHandler<?> getPaymentVerifierDataHandler(VirtualHost vhost, PaymentMethod method) {
+		if(method == null) {
+			return null;
+		}
+		Widget widget = widgets.getRegistry(vhost).get(method.getVerifierWidget());
+		if(widget == null) {
+			return null;
+		}
+		return widget.getDataHandler();
 	}
 
 }

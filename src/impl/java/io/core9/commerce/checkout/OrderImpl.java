@@ -15,6 +15,8 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	private static final long serialVersionUID = -7647420231452397432L;
 	
 	private String _id;
+	private int paymentCounter;
+	private String sessionId;
 	private Address billing;
 	private Address shipping;
 	private String paymentmethod;
@@ -35,10 +37,23 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	}
 	
 	@Override
-	public Order newId() {
-		this._id = null;
-		super.set_id(null);
-		this._id = super.getId();
+	public String getPaymentId() {
+		return getId() + "-" + paymentCounter;
+	}
+	
+	@Override
+	public int getPaymentCounter() {
+		return this.paymentCounter;
+	}
+	
+	@Override
+	public void setPaymentCounter(int paymentCounter) {
+		this.paymentCounter = paymentCounter;
+	}
+	
+	@Override
+	public Order incrementPaymentCounter() {
+		this.paymentCounter++;
 		return this;
 	}
 	
@@ -175,6 +190,17 @@ public class OrderImpl extends AbstractCrudEntity implements CrudEntity, Order {
 	@Override
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	@Override
+	public String getSessionId() {
+		return this.sessionId;
+	}
+
+	@Override
+	public Order setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+		return this;
 	}
 
 }

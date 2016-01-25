@@ -16,16 +16,32 @@ public interface Order extends Serializable {
 	String getId();
 	
 	/**
-	 * Reset the Order ID
+	 * Increment the Order Payment counter
+	 */
+	Order incrementPaymentCounter();
+	
+	/**
+	 * Return the Payment ID
 	 * @return
 	 */
-	Order newId();
+	String getPaymentId();
 	
 	/**
 	 * Set the Order ID
 	 * @param id
 	 */
 	void setId(String id);
+	
+	/**
+	 * Return the Session ID
+	 * @return
+	 */
+	String getSessionId();
+	
+	/**
+	 * Set the Session ID
+	 */
+	Order setSessionId(String sessionId);
 	
 	/**
 	 * Return the Cart associated with the order
@@ -134,4 +150,8 @@ public interface Order extends Serializable {
 	void setTimestamp(String timestamp);
 	
 	boolean validates(Request req);
+
+	int getPaymentCounter();
+	
+	void setPaymentCounter(int paymentCounter);
 }

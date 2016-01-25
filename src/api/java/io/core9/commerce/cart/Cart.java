@@ -1,6 +1,7 @@
 package io.core9.commerce.cart;
 
 import io.core9.commerce.cart.lineitem.LineItem;
+import io.core9.commerce.cart.lineitem.StandardLineItem;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.server.request.RequestUtils;
 
@@ -9,11 +10,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 public class Cart implements Serializable {
 	
 	private static final long serialVersionUID = 2485275694155939983L;
 	
+	@JsonDeserialize(contentAs=StandardLineItem.class)
 	Map<String, LineItem> items = new HashMap<String, LineItem>();
 
 	public Map<String, LineItem> getItems() {

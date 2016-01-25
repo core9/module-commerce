@@ -20,6 +20,7 @@ public class PaymentMethod extends AbstractCrudEntity implements CrudEntity {
 	private String name;
 	private String label;
 	private String widget;
+	private String verifierWidget;
 	
 	public String getConfigtype() {
 		if(configtype != null) {
@@ -54,6 +55,14 @@ public class PaymentMethod extends AbstractCrudEntity implements CrudEntity {
 
 	public void setWidget(String widget) {
 		this.widget = widget;
+	}
+	
+	public String getVerifierWidget() {
+		return verifierWidget;
+	}
+
+	public void setVerifierWidget(String verifierWidget) {
+		this.verifierWidget = verifierWidget;
 	}
 	
 	@Override

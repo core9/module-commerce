@@ -8,6 +8,7 @@ import io.core9.plugin.server.VirtualHost;
 import io.core9.plugin.server.request.Request;
 import io.core9.plugin.template.closure.ClosureTemplateEngine;
 import io.core9.plugin.widgets.datahandler.DataHandler;
+import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
 import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
 
 import java.util.HashMap;
@@ -37,6 +38,8 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 	@InjectPlugin
 	private ClosureTemplateEngine engine;
 
+	@InjectPlugin
+	private PaymentDataHandler<DataHandlerDefaultConfig> paymentHandler;
 
 	@Override
 	public String getName() {
@@ -58,26 +61,24 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 			public Map<String, Object> handle(Request req) {
 				Map<String,Object> result = new HashMap<String, Object>(2);
 				Order order = helper.getOrder(req);
-				switch (order.getStatus()) {
-				case "initialized":
-				case "paid":
-					//TODO: use something like (order.validate())
-					if(order.getCart() != null &&
-					   order.getBilling() != null &&
-					   order.getShipping() != null &&
-					   order.getPaymentmethod() != null) {
-						helper.finalizeOrder(req, order);
-						mailOrderConfirmation(config, req.getVirtualHost(), order);
-						break;
+				if(order.getStatus().equals("paying") || order.getStatus().equals("paid") || order.getStatus().equals("uncertain")) {
+					if(canBeFinalized(order)) {
+						PaymentMethod method = paymentHandler.getPaymentMethod(req.getVirtualHost(), order);
+						DataHandler<?> handler = paymentHandler.getPaymentVerifierDataHandler(req.getVirtualHost(), method);
+						if(handler != null) {
+							result.put("verifier", handler.handle(req));
+						} else {
+							result.put("verifier", new HashMap<String, Object>(0));
+						}
+						finalizeOrder(req, req.getVirtualHost(), order, config);
 					} else {
 						order.setStatus("BLOCK");
 						order.setMessage("Some of the cart/billing/shipping fields aren't entered correctly.");
 					}
-				default:
+				} else {
 					order.setStatus("BLOCK");
 					order.setMessage("Your order has the wrong status, you cannot finalize your order.");
-					LOG.error("Order " + order.getId() + " entered finalizing page without paid/initialized status");
-					break;
+					LOG.error("Order " + order.getId() + " entered finalizing page without paying status");
 				}
 				if(order != null) {
 					result.put("order", DataUtils.toMap(order));
@@ -91,16 +92,34 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 			}
 		};
 	}
-
+	
 	@Override
-	public void mailOrderConfirmation(T config, VirtualHost vhost, Order order) {
+	public boolean canBeFinalized(Order order) {
+		return order.getCart() != null &&
+				   order.getBilling() != null &&
+				   order.getShipping() != null &&
+				   order.getPaymentmethod() != null;
+	}
+	
+	@Override
+	public void finalizeOrder(Request req, VirtualHost vhost, Order order, T config) {
+		if(req != null) {
+			helper.finalizeOrder(req, order);
+		} else {
+			helper.finalizeOrder(vhost, order);
+		}
+		sendOrderMail(config, vhost, order, config.getMailerTemplate());
+	}
+	
+	@Override
+	public void sendOrderMail(T config, VirtualHost vhost, Order order, String templateName) {
 		try {
 			MailerProfile profile = mailer.getProfile(vhost, config.getMailerProfile());
 			MimeMessage message = (MimeMessage) mailer.create(profile);
 			message.addRecipients(Message.RecipientType.TO, InternetAddress.parse(order.getBilling().getEmail()));
 			message.setFrom(new InternetAddress(getOrDefault("from", config.getMailerFromAddress(), profile)));
 			message.setSubject(getOrDefault("subject", config.getMailerSubject(), profile));
-			message.setText(engine.render(vhost, config.getMailerTemplate(), DataUtils.toMap(order)), "utf-8", "html");
+			message.setText(engine.render(vhost, templateName, DataUtils.toMap(order)), "utf-8", "html");
 			mailer.send(profile, message);
 		} catch (MessagingException e) {
 			LOG.error("Error sending mail: " + e.getMessage());
