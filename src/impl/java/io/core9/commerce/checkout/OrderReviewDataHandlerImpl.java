@@ -36,7 +36,7 @@ public class OrderReviewDataHandlerImpl<T extends DataHandlerDefaultConfig> impl
 			@Override
 			public Map<String, Object> handle(Request req) {
 				Map<String,Object> result = new HashMap<String, Object>(2);
-				Order order = helper.getOrder(req);
+				Order order = helper.getRawOrder(req);
 				if(order != null) {
 					result.put("order", DataUtils.toMap(order));
 				}

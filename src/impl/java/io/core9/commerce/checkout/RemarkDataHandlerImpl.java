@@ -37,7 +37,7 @@ public class RemarkDataHandlerImpl<T extends DataHandlerDefaultConfig> implement
 
 			@Override
 			public Map<String, Object> handle(Request req, Map<String,Object> context) {
-				Order order = helper.getOrder(req);
+				Order order = helper.getRawOrder(req);
 				Map<String,Object> result = new HashMap<String, Object>();
 				if(context != null && (context.get("handled") == null || (Boolean) context.get("handled") == false)) {
 					order = handleRemark(req, order, context);

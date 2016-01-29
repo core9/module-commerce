@@ -36,7 +36,7 @@ public class ShippingDataHandlerImpl<T extends DataHandlerDefaultConfig> impleme
 
 			@Override
 			public Map<String, Object> handle(Request req, Map<String,Object> context) {
-				Order order = helper.getOrder(req);
+				Order order = helper.getRawOrder(req);
 				Map<String,Object> result = new HashMap<String, Object>();
 				order = handleShipping(req, order, context);
 				if(order != null) {

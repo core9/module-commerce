@@ -1,16 +1,5 @@
 package io.core9.commerce.checkout;
 
-import io.core9.commerce.CommerceDataHandlerHelper;
-import io.core9.mail.MailerPlugin;
-import io.core9.mail.MailerProfile;
-import io.core9.plugin.database.repository.DataUtils;
-import io.core9.plugin.server.VirtualHost;
-import io.core9.plugin.server.request.Request;
-import io.core9.plugin.template.closure.ClosureTemplateEngine;
-import io.core9.plugin.widgets.datahandler.DataHandler;
-import io.core9.plugin.widgets.datahandler.DataHandlerDefaultConfig;
-import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,10 +8,20 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.log4j.Logger;
+
+import io.core9.commerce.CommerceDataHandlerHelper;
+import io.core9.commerce.CommercePaymentHelper;
+import io.core9.mail.MailerPlugin;
+import io.core9.mail.MailerProfile;
+import io.core9.plugin.database.repository.DataUtils;
+import io.core9.plugin.server.VirtualHost;
+import io.core9.plugin.server.request.Request;
+import io.core9.plugin.template.closure.ClosureTemplateEngine;
+import io.core9.plugin.widgets.datahandler.DataHandler;
+import io.core9.plugin.widgets.datahandler.DataHandlerFactoryConfig;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import net.xeoh.plugins.base.annotations.injections.InjectPlugin;
-
-import org.apache.log4j.Logger;
 
 @PluginImplementation
 public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerConfig> implements OrderFinalizerDataHandler<T> {
@@ -33,13 +32,13 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 	private CommerceDataHandlerHelper helper;
 	
 	@InjectPlugin
+	private CommercePaymentHelper payment;
+	
+	@InjectPlugin
 	private MailerPlugin mailer;
 	
 	@InjectPlugin
 	private ClosureTemplateEngine engine;
-
-	@InjectPlugin
-	private PaymentDataHandler<DataHandlerDefaultConfig> paymentHandler;
 
 	@Override
 	public String getName() {
@@ -60,16 +59,10 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 			@Override
 			public Map<String, Object> handle(Request req) {
 				Map<String,Object> result = new HashMap<String, Object>(2);
-				Order order = helper.getOrder(req);
-				if(order.getStatus().equals("paying") || order.getStatus().equals("paid") || order.getStatus().equals("uncertain")) {
+				Order order = helper.getRawOrder(req);
+				if(order.getStatus().equals("paying") || order.getStatus().equals("paid") || order.getStatus().equals("uncertain") || order.getStatus().equals("failed")) {
 					if(canBeFinalized(order)) {
-						PaymentMethod method = paymentHandler.getPaymentMethod(req.getVirtualHost(), order);
-						DataHandler<?> handler = paymentHandler.getPaymentVerifierDataHandler(req.getVirtualHost(), method);
-						if(handler != null) {
-							result.put("verifier", handler.handle(req));
-						} else {
-							result.put("verifier", new HashMap<String, Object>(0));
-						}
+						result.put("verifier", payment.verifyPayment(req, order));
 						finalizeOrder(req, req.getVirtualHost(), order, config);
 					} else {
 						order.setStatus("BLOCK");

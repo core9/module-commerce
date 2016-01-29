@@ -26,7 +26,10 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 	
 	@InjectPlugin
 	private AuthenticationPlugin auth;
-	
+		
+	@InjectPlugin
+	private CommercePaymentHelper payment;
+
 	private CrudRepository<OrderImpl> orderRepository;
 	
 	@PluginLoaded
@@ -41,12 +44,42 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 		} else {
 			Session session = auth.getUser(req).getSession();
 			Cart cart = (Cart) session.getAttribute(SESSION_CART_KEY);
+			cart = validateCart(cart, req, session);
 			if(cart == null) {
 				cart = new Cart();
 			}
 			req.putContext(CONTEXT_PREFIX + SESSION_CART_KEY, cart);
 			return cart;
 		}
+	}
+
+	/**
+	 * Validates the cart (checks if order isn't already completed)
+	 * @param cart
+	 * @param session
+	 * @return
+	 */
+	private Cart validateCart(Cart cart, Request req, Session session) {
+		Order order = (OrderImpl) session.getAttribute(SESSION_ORDER_KEY);
+		if(order != null && order.getStatus().equals("paying")) {
+			order = validateOrder(order, req);
+			if(order == null || order.getStatus().equals("paid")) {
+				removeCart(req, session);
+				return null;
+			} else {
+				return cart;
+			}
+		}
+		return cart;
+	}
+
+	/**
+	 * Remove the cart from the session
+	 * @param session
+	 */
+	private void removeCart(Request req, Session session) {
+		session.removeAttribute(SESSION_CART_KEY);
+		req.getContext().remove(CONTEXT_PREFIX + SESSION_CART_KEY);
 	}
 
 	@Override
@@ -57,18 +90,90 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 		req.putContext(CONTEXT_PREFIX + SESSION_CART_KEY, cart);
 		return cart;
 	}
-
+	
 	@Override
-	public Order getOrder(Request req) {
-		if(req.getPathParams().containsKey(PATH_ORDER_ID) && req.getPathParams().containsKey(PATH_SESSION_ID)) {
-			Order order = getOrder(req, req.getPathParams().get(PATH_ORDER_ID), req.getPathParams().get(PATH_SESSION_ID));
-			setOnContext(req, order);
-		}
-		OrderImpl order = (OrderImpl) req.getContext(CONTEXT_PREFIX + SESSION_ORDER_KEY); 
+	public Order getRawOrder(Request req) {
+		Order order = getOrderFromRequest(req);
 		if(order == null) {
 			Session session = auth.getUser(req).getSession();
-			order = (OrderImpl) getOrder(req, session);
+			order = (OrderImpl) getOrderFromSession(session);
 		}
+		if(order == null) {
+			order = (OrderImpl) createOrder(req);
+			setOnContext(req, order);
+		}
+		order.setCart(getRawCart(req));
+		return order;
+	}
+	
+	private Cart getRawCart(Request req) {
+		if(req.getContext(CONTEXT_PREFIX + SESSION_CART_KEY) != null) {
+			return (Cart) req.getContext(CONTEXT_PREFIX + SESSION_CART_KEY);
+		} else {
+			Session session = auth.getUser(req).getSession();
+			Cart cart = (Cart) session.getAttribute(SESSION_CART_KEY);
+			if(cart == null) {
+				cart = new Cart();
+			}
+			req.putContext(CONTEXT_PREFIX + SESSION_CART_KEY, cart);
+			return cart;
+		}
+
+	}
+	
+	@Override
+	public Order getOrder(Request req) {
+		Order order = getOrderFromRequest(req);
+		if(order == null) {
+			Session session = auth.getUser(req).getSession();
+			order = (OrderImpl) getOrderFromSession(session);
+		}
+		order = validateOrder(order, req);
+		if(order == null) {
+			order = (OrderImpl) createOrder(req);
+			setOnContext(req, order);
+		}
+		order.setCart(getCart(req));
+		return order;
+	}
+	
+	@Override
+	public Order getOrder(Request req, Session session) {
+		Order order = getOrderFromSession(session);
+		if(order == null) {
+			order = (OrderImpl) createOrder(req);
+		}
+		order.setCart(getCart(req));
+		setOnContext(req, order);
+		return order;
+	}
+	
+	/**
+	 * Loads the order via sessionid and orderid
+	 * @param req
+	 * @param orderId
+	 * @param sessionId
+	 * @return
+	 */
+	private Order getOrderFromRepository(Request req, String orderId, String sessionId) {
+		Order order = orderRepository.read(req.getVirtualHost(), orderId);
+		if(order != null && order.getSessionId().equals(sessionId)) {
+			return order;
+		}
+		return null;
+	}
+	
+	private Order getOrderFromSession(Session session) {
+		Order order = (OrderImpl) session.getAttribute(SESSION_ORDER_KEY);
+		return order;
+	}
+	
+	private Order getOrderFromRequest(Request req) {
+		if(req.getPathParams().containsKey(PATH_ORDER_ID) && req.getPathParams().containsKey(PATH_SESSION_ID)) {
+			Order order = getOrderFromRepository(req, req.getPathParams().get(PATH_ORDER_ID), req.getPathParams().get(PATH_SESSION_ID));
+			setOnContext(req, order);
+		}
+		OrderImpl order = (OrderImpl) req.getContext(CONTEXT_PREFIX + SESSION_ORDER_KEY);
 		return order;
 	}
 	
@@ -81,32 +186,6 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 		req.putContext(CONTEXT_PREFIX + SESSION_ORDER_KEY, order);
 	}
 	
-	/**
-	 * Loads the order via sessionid and orderid
-	 * @param req
-	 * @param orderId
-	 * @param sessionId
-	 * @return
-	 */
-	private Order getOrder(Request req, String orderId, String sessionId) {
-		Order order = orderRepository.read(req.getVirtualHost(), orderId);
-		if(order != null && order.getSessionId().equals(sessionId)) {
-			return order;
-		}
-		return null;
-	}
-	
-	@Override
-	public Order getOrder(Request req, Session session) {
-		OrderImpl order = (OrderImpl) session.getAttribute(SESSION_ORDER_KEY);
-		if(order == null) {
-			order = (OrderImpl) createOrder(req);
-		}
-		order.setCart(getCart(req));
-		req.putContext(CONTEXT_PREFIX + SESSION_ORDER_KEY, order);
-		return order;
-	}
-
 	@Override
 	public Order saveOrder(Request req, Order order) {
 		Session session = auth.getUser(req).getSession();
@@ -135,9 +214,6 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 	@Override
 	public Order finalizeOrder(VirtualHost vhost, Order order) {
 		order.setFinalized(true);
-		Session session = auth.getSessionById(order.getSessionId());
-		session.removeAttribute(SESSION_CART_KEY);
-		session.removeAttribute(SESSION_ORDER_KEY);
 		orderRepository.upsert(vhost, (OrderImpl) order);
 		return order;
 	}
@@ -147,12 +223,39 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 		order.setFinalized(true);
 		saveOrder(req, order);
 		Session session = auth.getUser(req).getSession();
-		
-		session.removeAttribute(SESSION_CART_KEY);
-		session.removeAttribute(SESSION_ORDER_KEY);
-		req.getContext().remove(CONTEXT_PREFIX + SESSION_CART_KEY);
-		req.getContext().remove(CONTEXT_PREFIX + SESSION_ORDER_KEY);
+		removeCart(req, session);
+		removeOrderFromContext(req);
 		return null;
+	}
+
+	/**
+	 * Checks if the order is valid
+	 * @param req
+	 * @param session
+	 */
+	private Order validateOrder(Order order, Request req) {
+		if(order == null) {
+			return null;
+		} else if(order.getStatus().equals("paying")) {
+			payment.verifyPayment(req, order);
+			order = orderRepository.read(req.getVirtualHost(), order.getId());
+			if(order.getStatus().equals("paid")) {
+				removeOrderFromContext(req);
+				return null;
+			}	
+		}
+		return order;
+	}
+	
+	/**
+	 * Remove the order from the session
+	 * @param req
+	 * @param session
+	 */
+	private void removeOrderFromContext(Request req) {
+		Session session = auth.getUser(req).getSession();
+		session.removeAttribute(SESSION_ORDER_KEY);
+		req.getContext().remove(CONTEXT_PREFIX + SESSION_ORDER_KEY);		
 	}
 
 	@Override
@@ -167,6 +270,7 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 	public Session getSession(Request req) {
 		return auth.getUser(req).getSession();
 	}
+
 	
 }
 
