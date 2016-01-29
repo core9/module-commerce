@@ -38,7 +38,9 @@ public class InvoiceVerifierDataHandlerImpl<T extends DataHandlerDefaultConfig> 
 				Order order = helper.getRawOrder(req);
 				order.setStatus("pending");
 				helper.saveOrder(req, order);
-				return new HashMap<String,Object>();
+				Map<String, Object> result = new HashMap<String, Object>();
+				result.put("type", "invoice");
+				return result;
 			}
 
 			@SuppressWarnings("unchecked")
