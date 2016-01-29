@@ -60,7 +60,8 @@ public class OrderFinalizerDataHandlerImpl<T extends OrderFinalizerDataHandlerCo
 			public Map<String, Object> handle(Request req) {
 				Map<String,Object> result = new HashMap<String, Object>(2);
 				Order order = helper.getRawOrder(req);
-				if(order.getStatus().equals("paying") || order.getStatus().equals("paid") || order.getStatus().equals("uncertain") || order.getStatus().equals("failed")) {
+				String status = order.getStatus();
+				if(status.equals("paying") || status.equals("paid") || status.equals("uncertain") || status.equals("failed") || status.equals("pending")) {
 					if(canBeFinalized(order)) {
 						result.put("verifier", payment.verifyPayment(req, order));
 						finalizeOrder(req, req.getVirtualHost(), order, config);
