@@ -103,6 +103,10 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 			setOnContext(req, order);
 		}
 		order.setCart(getRawCart(req));
+		if(order.getSessionId() == null) {
+			order.setSessionId(auth.getUser(req).getSession().getId());
+			saveOrder(req, order);
+		}
 		return order;
 	}
 	
@@ -134,6 +138,10 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 			setOnContext(req, order);
 		}
 		order.setCart(getCart(req));
+		if(order.getSessionId() == null) {
+			order.setSessionId(auth.getUser(req).getSession().getId());
+			saveOrder(req, order);
+		}
 		return order;
 	}
 	
@@ -144,6 +152,10 @@ public class CommerceDataHandlerHelperImpl implements CommerceDataHandlerHelper 
 			order = (OrderImpl) createOrder(req);
 		}
 		order.setCart(getCart(req));
+		if(order.getSessionId() == null) {
+			order.setSessionId(auth.getUser(req).getSession().getId());
+			saveOrder(req, order);
+		}
 		setOnContext(req, order);
 		return order;
 	}
